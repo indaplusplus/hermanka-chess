@@ -36,7 +36,10 @@ public class App {
 
 
   private static void printInstructions() {
-    //TODO
+    System.out.println("Moves are entered in standard chess move form");
+    System.out.println("Example: a2 a4");
+    System.out.println("First the square to move from and then the square to move to");
+    System.out.println("Castling and promotion is available, but not passant");
   }
 
   private static void getPromotion() {
@@ -57,9 +60,9 @@ public class App {
 
   private static void getAndMakeMove() {
     if (currentGame.getCurrentPlayer() == Color.WHITE) {
-      System.out.println("Currently whites turn");
+      System.out.println("Currently player: White");
     } else {
-      System.out.println("Currently blacks turn");
+      System.out.println("Currently player: Black");
     }
 
     while (true) {
@@ -72,7 +75,6 @@ public class App {
         break;
       }
       if (ret == ReturnValue.PROMOTION) {
-        //TODO: implement promotion
         getPromotion();
         break;
       }
