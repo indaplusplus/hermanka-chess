@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class Knight extends Piece {
 
-  public Knight(Color color, int row, int col) {
-    super(row,col);
+  public Knight(Color color) {
+    super();
     this.color = color;
     this.type = PieceType.KNIGHT;
 
@@ -17,7 +17,7 @@ public class Knight extends Piece {
   }
 
   @Override
-  public ArrayList<Position> getPossibleMoves() {
+  public ArrayList<Position> getPossibleMoves(int row, int col) {
     ArrayList<Position> possibleMoves = new ArrayList<>();
     int[] deltaRow = {1, -1, 1, -1, 2, 2, -2, -2};
     int[] deltaCol = {2, 2, -2, -2, 1, -1, 1, -1};
@@ -36,7 +36,7 @@ public class Knight extends Piece {
 
   @Override
   Knight makeCopy() {
-    Knight returnPiece = new Knight(color, row, col);
+    Knight returnPiece = new Knight(color);
     returnPiece.hasMoved = hasMoved;
     return returnPiece;
   }

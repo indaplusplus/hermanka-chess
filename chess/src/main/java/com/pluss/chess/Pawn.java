@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class Pawn extends Piece {
 
-  Pawn(Color color, int row, int col) {
-    super(row,col);
+  Pawn(Color color) {
+    super();
     this.color = color;
     this.type = PieceType.PAWN;
 
@@ -17,7 +17,7 @@ public class Pawn extends Piece {
   }
 
   @Override
-  ArrayList<Position> getPossibleMoves() {
+  ArrayList<Position> getPossibleMoves(int row, int col) {
     ArrayList<Position> possibleMoves = new ArrayList<>();
     int deltaRow;
 
@@ -41,9 +41,8 @@ public class Pawn extends Piece {
 
   @Override
   Pawn makeCopy() {
-    Pawn returnPiece = new Pawn(color,row, col);
+    Pawn returnPiece = new Pawn(color);
     returnPiece.hasMoved = hasMoved;
     return returnPiece;
   }
-
 }

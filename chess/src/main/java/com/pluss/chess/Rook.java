@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class Rook extends Piece {
 
-  public Rook(Color color, int row, int col) {
-    super(row,col);
+  public Rook(Color color) {
+    super();
     this.color = color;
     this.type = PieceType.ROOK;
 
@@ -17,21 +17,21 @@ public class Rook extends Piece {
   }
 
   @Override
-  public ArrayList<Position> getPossibleMoves() {
+  public ArrayList<Position> getPossibleMoves(int row, int col) {
     ArrayList<Position> possibleMoves = new ArrayList<>();
 
-    for (int row = 0; row < ROWS; row++) {
-      if (row == this.row) {
+    for (int currentRow = 0; currentRow < ROWS; currentRow++) {
+      if (currentRow == row) {
         continue;
       }
-      possibleMoves.add(new Position(row, this.col));
+      possibleMoves.add(new Position(currentRow, col));
     }
 
-    for (int col = 0; col < COLUMNS; col++) {
-      if (col == this.col) {
+    for (int currentCol = 0; currentCol < COLUMNS; currentCol++) {
+      if (currentCol == col) {
         continue;
       }
-      possibleMoves.add(new Position(this.row, col));
+      possibleMoves.add(new Position(row, currentCol));
     }
 
     return possibleMoves;
@@ -39,9 +39,8 @@ public class Rook extends Piece {
 
   @Override
   Rook makeCopy() {
-    Rook returnPiece = new Rook(color,row, col);
+    Rook returnPiece = new Rook(color);
     returnPiece.hasMoved = hasMoved;
     return returnPiece;
   }
-
 }

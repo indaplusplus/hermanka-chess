@@ -19,35 +19,35 @@ public class Game {
     //White at the bottom and black at the top
 
     //adding black pieces
-    board.set(0, 0, new Rook(Color.BLACK, 0, 0));
-    board.set(0, 1, new Knight(Color.BLACK, 0, 1));
-    board.set(0, 2, new Bishop(Color.BLACK, 0, 2));
-    board.set(0, 3, new Queen(Color.BLACK, 0, 3));
-    board.set(0, 4, new King(Color.BLACK, 0, 4));
-    board.set(0, 5, new Bishop(Color.BLACK, 0, 5));
-    board.set(0, 6, new Knight(Color.BLACK, 0, 6));
-    board.set(0, 7, new Rook(Color.BLACK, 0, 7));
+    board.set(0, 0, new Rook(Color.BLACK));
+    board.set(0, 1, new Knight(Color.BLACK));
+    board.set(0, 2, new Bishop(Color.BLACK));
+    board.set(0, 3, new Queen(Color.BLACK));
+    board.set(0, 4, new King(Color.BLACK));
+    board.set(0, 5, new Bishop(Color.BLACK));
+    board.set(0, 6, new Knight(Color.BLACK));
+    board.set(0, 7, new Rook(Color.BLACK));
     for (int col = 0; col < COLUMNS; col++) {
-      board.set(1, col, new Pawn(Color.BLACK, 1, col));
+      board.set(1, col, new Pawn(Color.BLACK));
     }
 
     //adding white pieces
-    board.set(ROWS - 1, 0, new Rook(Color.WHITE, ROWS - 1, 0));
-    board.set(ROWS - 1, 1, new Knight(Color.WHITE, ROWS - 1, 1));
-    board.set(ROWS - 1, 2, new Bishop(Color.WHITE, ROWS - 1, 2));
-    board.set(ROWS - 1, 3, new Queen(Color.WHITE, ROWS - 1, 3));
-    board.set(ROWS - 1, 4, new King(Color.WHITE, ROWS - 1, 4));
-    board.set(ROWS - 1, 5, new Bishop(Color.WHITE, ROWS - 1, 5));
-    board.set(ROWS - 1, 6, new Knight(Color.WHITE, ROWS - 1, 6));
-    board.set(ROWS - 1, 7, new Rook(Color.WHITE, ROWS - 1, 7));
+    board.set(ROWS - 1, 0, new Rook(Color.WHITE));
+    board.set(ROWS - 1, 1, new Knight(Color.WHITE));
+    board.set(ROWS - 1, 2, new Bishop(Color.WHITE));
+    board.set(ROWS - 1, 3, new Queen(Color.WHITE));
+    board.set(ROWS - 1, 4, new King(Color.WHITE));
+    board.set(ROWS - 1, 5, new Bishop(Color.WHITE));
+    board.set(ROWS - 1, 6, new Knight(Color.WHITE));
+    board.set(ROWS - 1, 7, new Rook(Color.WHITE));
     for (int col = 0; col < COLUMNS; col++) {
-      board.set(ROWS - 2, col, new Pawn(Color.WHITE, ROWS - 2, col));
+      board.set(ROWS - 2, col, new Pawn(Color.WHITE));
     }
 
     //adding empty pieces
     for (int row = 2; row < ROWS - 2; ++row) {
       for (int col = 0; col < COLUMNS; ++col) {
-        board.set(row, col, new Piece(row, col));
+        board.set(row, col, new Piece());
       }
     }
   }
@@ -58,43 +58,43 @@ public class Game {
       for (int col = 0; col < COLUMNS; ++col) {
         switch (initBoard[row].charAt(col)) {
           case '.':
-            board.set(row, col, new Piece(row, col));
+            board.set(row, col, new Piece());
             break;
           case 'p':
-            board.set(row, col, new Pawn(Color.BLACK, row, col));
+            board.set(row, col, new Pawn(Color.BLACK));
             break;
           case 'P':
-            board.set(row, col, new Pawn(Color.WHITE, row, col));
+            board.set(row, col, new Pawn(Color.WHITE));
             break;
           case 'r':
-            board.set(row, col, new Rook(Color.BLACK, row, col));
+            board.set(row, col, new Rook(Color.BLACK));
             break;
           case 'R':
-            board.set(row, col, new Rook(Color.WHITE, row, col));
+            board.set(row, col, new Rook(Color.WHITE));
             break;
           case 'n':
-            board.set(row, col, new Knight(Color.BLACK, row, col));
+            board.set(row, col, new Knight(Color.BLACK));
             break;
           case 'N':
-            board.set(row, col, new Knight(Color.WHITE, row, col));
+            board.set(row, col, new Knight(Color.WHITE));
             break;
           case 'b':
-            board.set(row, col, new Bishop(Color.BLACK, row, col));
+            board.set(row, col, new Bishop(Color.BLACK));
             break;
           case 'B':
-            board.set(row, col, new Bishop(Color.WHITE, row, col));
+            board.set(row, col, new Bishop(Color.WHITE));
             break;
           case 'q':
-            board.set(row, col, new Queen(Color.BLACK, row, col));
+            board.set(row, col, new Queen(Color.BLACK));
             break;
           case 'Q':
-            board.set(row, col, new Queen(Color.WHITE, row, col));
+            board.set(row, col, new Queen(Color.WHITE));
             break;
           case 'k':
-            board.set(row, col, new King(Color.BLACK, row, col));
+            board.set(row, col, new King(Color.BLACK));
             break;
           case 'K':
-            board.set(row, col, new King(Color.WHITE, row, col));
+            board.set(row, col, new King(Color.WHITE));
             break;
           default:
             throw new Error();
@@ -145,7 +145,7 @@ public class Game {
     int currentRow = fromRow + deltaRow;
     int currentCol = fromCol + deltaCol;
     while (currentRow != toRow || currentCol != toCol) {
-      if (board.get(currentRow, currentCol).getType() != PieceType.NONE) {
+      if (board.getType(currentRow, currentCol) != PieceType.NONE) {
         return false;
       }
       currentRow += deltaRow;
@@ -202,19 +202,19 @@ public class Game {
 
     //checks the piece is of the right color and that target square
     //is not occupied by that players piece
-    if (board.get(fromRow, fromCol).getColor() != currentPlayer) {
+    if (board.getColor(fromRow, fromCol) != currentPlayer) {
       return false;
     }
-    if (board.get(toRow, toCol).getColor() == currentPlayer) {
+    if (board.getColor(toRow, toCol) == currentPlayer) {
       return false;
     }
 
     //Special case if
     boolean pawnPass = false;
-    if (board.get(fromRow, fromCol).getType() == PieceType.PAWN) {
+    if (board.getType(fromRow, fromCol) == PieceType.PAWN) {
       //special check if piece is pawn
       if (toCol - fromCol == 0) {
-        if (board.get(toRow, toCol).getType() != PieceType.NONE) {
+        if (board.getType(toRow, toCol) != PieceType.NONE) {
           //if the piece moves forward and there is a piece there, it's an invalid move
           return false;
         }
@@ -223,7 +223,7 @@ public class Game {
           //fail if move if not moving 1 square diagonally
           return false;
         }
-        if (board.get(toRow, toCol).getColor() != Color.NONE
+        if (board.getColor(toRow, toCol) != Color.NONE
                 && board.get(toRow, toCol).getColor() != currentPlayer) {
           pawnPass = true;
         }
@@ -231,13 +231,13 @@ public class Game {
     }
 
     //checks that the move is possible for the piece
-    ArrayList<Position> possibleMoves = board.get(fromRow, fromCol).getPossibleMoves();
+    ArrayList<Position> possibleMoves = board.getPossibleMoves(fromRow, fromCol);
     if (!pawnPass && !possibleMoves.contains(new Position(toRow, toCol))) {
       return false;
     }
 
     //checks that no other pieces are in the way (unless piece is a knight)
-    if (board.get(fromRow, fromCol).getType() != PieceType.KNIGHT) {
+    if (board.getType(fromRow, fromCol) != PieceType.KNIGHT) {
       if (!checkForInBetweenPieces(fromRow, fromCol, toRow, toCol)) {
         return false;
       }
@@ -360,19 +360,19 @@ public class Game {
     }
     Color pieceColor = board.getColor(piecePos.row, piecePos.col);
     if (promoteTo == PieceType.QUEEN) {
-      board.set(piecePos.row, piecePos.col, new Queen(pieceColor, piecePos.row, piecePos.col));
+      board.set(piecePos.row, piecePos.col, new Queen(pieceColor));
       return true;
     }
     if (promoteTo == PieceType.BISHOP) {
-      board.set(piecePos.row, piecePos.col, new Bishop(pieceColor, piecePos.row, piecePos.col));
+      board.set(piecePos.row, piecePos.col, new Bishop(pieceColor));
       return true;
     }
     if (promoteTo == PieceType.ROOK) {
-      board.set(piecePos.row, piecePos.col, new Rook(pieceColor, piecePos.row, piecePos.col));
+      board.set(piecePos.row, piecePos.col, new Rook(pieceColor));
       return true;
     }
     if (promoteTo == PieceType.KNIGHT) {
-      board.set(piecePos.row,piecePos.col, new Knight(pieceColor, piecePos.row, piecePos.col));
+      board.set(piecePos.row,piecePos.col, new Knight(pieceColor));
       return true;
     }
     return false;

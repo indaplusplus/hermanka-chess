@@ -7,10 +7,6 @@ class Piece {
   static final int ROWS = 8;
   static final int COLUMNS = 8;
 
-  //indicates position on the board
-  int row = 0;
-  int col = 0;
-
   Color color = Color.NONE;
   boolean hasMoved = false;
   PieceType type = PieceType.NONE;
@@ -19,23 +15,19 @@ class Piece {
   //White is upper case and black is lower case
   char pieceCharacter = '.';
 
-  Piece(int row, int col) {
-    this.row = row;
-    this.col = col;
-  }
+  Piece() {}
 
   //used to get simple moves that does not involve other pieces (such as castling)
-  ArrayList<Position> getPossibleMoves() {
+  ArrayList<Position> getPossibleMoves(int row, int col) {
     return new ArrayList<Position>();
   }
 
   //changes internal location state
-  void moveTo(int newRow, int newCol) {
-    row = newRow;
-    col = newCol;
+  void move() {
+
     hasMoved = true;
   }
-
+/*
   int getRow() {
     return row;
   }
@@ -47,7 +39,7 @@ class Piece {
   Position getPos() {
     return new Position(row, col);
   }
-
+*/
   Color getColor() {
     return color;
   }
@@ -65,7 +57,7 @@ class Piece {
   }
 
   Piece makeCopy() {
-    Piece returnPiece = new Piece(row, col);
+    Piece returnPiece = new Piece();
     returnPiece.color = color;
     returnPiece.hasMoved = hasMoved;
     returnPiece.type = type;

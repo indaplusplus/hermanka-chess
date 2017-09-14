@@ -6,9 +6,9 @@ import java.util.ArrayList;
 
 public class BishopTest extends TestCase {
   public void testGetPossibleMoves() throws Exception {
-    Bishop testBishop = new Bishop(Color.WHITE, 4, 4);
+    Bishop testBishop = new Bishop(Color.WHITE);
 
-    ArrayList<Position> moves = testBishop.getPossibleMoves();
+    ArrayList<Position> moves = testBishop.getPossibleMoves(4, 4);
 
     assertEquals(13, moves.size());
     assertTrue(moves.contains(new Position(7, 1)));

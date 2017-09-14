@@ -6,10 +6,11 @@ import java.util.ArrayList;
 
 public class QueenTest extends TestCase {
   public void testGetPossibleMoves() throws Exception {
-    Queen testQueen = new Queen(Color.WHITE, 4, 4);
+    Queen testQueen = new Queen(Color.WHITE);
 
-    ArrayList<Position> moves = testQueen.getPossibleMoves();
+    ArrayList<Position> moves = testQueen.getPossibleMoves(4, 4);
 
+    assertEquals(27, moves.size());
     assertTrue(moves.contains(new Position(0, 0)));
     assertTrue(moves.contains(new Position(1, 7)));
     assertTrue(moves.contains(new Position(5, 3)));

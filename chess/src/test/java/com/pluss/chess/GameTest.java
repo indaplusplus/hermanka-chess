@@ -46,7 +46,7 @@ public class GameTest extends TestCase {
                                "RNBQKBNR"};
 
     //assertEquals(correctStrings, boardStrings);
-    for (int i = 0; i < testGame.ROWS; i++) {
+    for (int i = 0; i < Game.ROWS; i++) {
       assertEquals(correctStrings[i], boardStrings[i]);
     }
   }
@@ -64,7 +64,7 @@ public class GameTest extends TestCase {
     Game testGame = new Game(initStrings);
 
     String[] boardString = testGame.getBoardAsString();
-    for (int i = 0; i < testGame.ROWS; i++) {
+    for (int i = 0; i < Game.ROWS; i++) {
       assertEquals(initStrings[i], boardString[i]);
     }
   }
@@ -84,7 +84,7 @@ public class GameTest extends TestCase {
     assertTrue(testGame.tryMove(7, 6, 5, 5));
 
     String[] currentBoard = testGame.getBoardAsString();
-    for (int row = 0; row < 8; row++) {
+    for (int row = 0; row < Game.ROWS; row++) {
       assertEquals(initStrings[row], currentBoard[row]);
     }
   }
@@ -116,7 +116,7 @@ public class GameTest extends TestCase {
                     ".NBQKBNR"};
 
     String[] currentBoard = testGame.getBoardAsString();
-    for (int row = 0; row < 8; row++) {
+    for (int row = 0; row < Game.ROWS; row++) {
       assertEquals(correctStrings[row], currentBoard[row]);
     }
   }
@@ -135,7 +135,7 @@ public class GameTest extends TestCase {
     assertTrue(testGame.isWhiteInCheck());
 
     String[] currentBoard = testGame.getBoardAsString();
-    for (int row = 0; row < 8; row++) {
+    for (int row = 0; row < Game.ROWS; row++) {
       assertEquals(initStrings[row], currentBoard[row]);
     }
   }
@@ -184,7 +184,7 @@ public class GameTest extends TestCase {
     assertTrue(testGame.isWhiteInCheck());
 
     String[] currentBoard = testGame.getBoardAsString();
-    for (int row = 0; row < 8; row++) {
+    for (int row = 0; row < Game.ROWS; row++) {
       assertEquals(initStrings[row], currentBoard[row]);
     }
   }
