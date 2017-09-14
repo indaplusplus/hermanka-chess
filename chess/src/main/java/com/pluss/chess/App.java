@@ -60,9 +60,9 @@ public class App {
 
   private static void getAndMakeMove() {
     if (currentGame.getCurrentPlayer() == Color.WHITE) {
-      System.out.println("Currently player: White");
+      System.out.println("Current player: White");
     } else {
-      System.out.println("Currently player: Black");
+      System.out.println("Current player: Black");
     }
 
     while (true) {
