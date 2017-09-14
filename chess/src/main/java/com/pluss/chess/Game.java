@@ -9,47 +9,47 @@ public class Game {
 
   private Color currentPlayer = Color.WHITE;
 
-  private Piece[][] board = new Piece[ROWS][COLUMNS];
-  private Piece[][] lastBoard = new Piece[ROWS][COLUMNS];
+  private Board board = new Board();
+  private Board backupBoard = new Board();
+
+  private ArrayList<Board> history = new ArrayList<>();
 
   public Game() {
     //initialises board as a standard game
     //White at the bottom and black at the top
 
     //adding black pieces
-    board[0][0] = new Rook(Color.BLACK, 0, 0);
-    board[0][1] = new Knight(Color.BLACK, 0, 1);
-    board[0][2] = new Bishop(Color.BLACK, 0, 2);
-    board[0][3] = new Queen(Color.BLACK, 0, 3);
-    board[0][4] = new King(Color.BLACK, 0, 4);
-    board[0][5] = new Bishop(Color.BLACK, 0, 5);
-    board[0][6] = new Knight(Color.BLACK, 0, 6);
-    board[0][7] = new Rook(Color.BLACK, 0, 7);
+    board.set(0, 0, new Rook(Color.BLACK, 0, 0));
+    board.set(0, 1, new Knight(Color.BLACK, 0, 1));
+    board.set(0, 2, new Bishop(Color.BLACK, 0, 2));
+    board.set(0, 3, new Queen(Color.BLACK, 0, 3));
+    board.set(0, 4, new King(Color.BLACK, 0, 4));
+    board.set(0, 5, new Bishop(Color.BLACK, 0, 5));
+    board.set(0, 6, new Knight(Color.BLACK, 0, 6));
+    board.set(0, 7, new Rook(Color.BLACK, 0, 7));
     for (int col = 0; col < COLUMNS; col++) {
-      board[1][col] = new Pawn(Color.BLACK, 1, col);
+      board.set(1, col, new Pawn(Color.BLACK, 1, col));
     }
 
     //adding white pieces
-    board[ROWS - 1][0] = new Rook(Color.WHITE, ROWS - 1, 0);
-    board[ROWS - 1][1] = new Knight(Color.WHITE, ROWS - 1, 1);
-    board[ROWS - 1][2] = new Bishop(Color.WHITE, ROWS - 1, 2);
-    board[ROWS - 1][3] = new Queen(Color.WHITE, ROWS - 1, 3);
-    board[ROWS - 1][4] = new King(Color.WHITE, ROWS - 1, 4);
-    board[ROWS - 1][5] = new Bishop(Color.WHITE, ROWS - 1, 5);
-    board[ROWS - 1][6] = new Knight(Color.WHITE, ROWS - 1, 6);
-    board[ROWS - 1][7] = new Rook(Color.WHITE, ROWS - 1, 7);
+    board.set(ROWS - 1, 0, new Rook(Color.WHITE, ROWS - 1, 0));
+    board.set(ROWS - 1, 1, new Knight(Color.WHITE, ROWS - 1, 1));
+    board.set(ROWS - 1, 2, new Bishop(Color.WHITE, ROWS - 1, 2));
+    board.set(ROWS - 1, 3, new Queen(Color.WHITE, ROWS - 1, 3));
+    board.set(ROWS - 1, 4, new King(Color.WHITE, ROWS - 1, 4));
+    board.set(ROWS - 1, 5, new Bishop(Color.WHITE, ROWS - 1, 5));
+    board.set(ROWS - 1, 6, new Knight(Color.WHITE, ROWS - 1, 6));
+    board.set(ROWS - 1, 7, new Rook(Color.WHITE, ROWS - 1, 7));
     for (int col = 0; col < COLUMNS; col++) {
-      board[ROWS - 2][col] = new Pawn(Color.WHITE, ROWS - 2, col);
+      board.set(ROWS - 2, col, new Pawn(Color.WHITE, ROWS - 2, col));
     }
 
     //adding empty pieces
     for (int row = 2; row < ROWS - 2; ++row) {
       for (int col = 0; col < COLUMNS; ++col) {
-        board[row][col] = new Piece(row, col);
+        board.set(row, col, new Piece(row, col));
       }
     }
-
-    lastBoard = board;
   }
 
   public Game(String[] initBoard) {
@@ -58,43 +58,43 @@ public class Game {
       for (int col = 0; col < COLUMNS; ++col) {
         switch (initBoard[row].charAt(col)) {
           case '.':
-            board[row][col] = new Piece(row, col);
+            board.set(row, col, new Piece(row, col));
             break;
           case 'p':
-            board[row][col] = new Pawn(Color.BLACK, row, col);
+            board.set(row, col, new Pawn(Color.BLACK, row, col));
             break;
           case 'P':
-            board[row][col] = new Pawn(Color.WHITE, row, col);
+            board.set(row, col, new Pawn(Color.WHITE, row, col));
             break;
           case 'r':
-            board[row][col] = new Rook(Color.BLACK, row, col);
+            board.set(row, col, new Rook(Color.BLACK, row, col));
             break;
           case 'R':
-            board[row][col] = new Rook(Color.WHITE, row, col);
+            board.set(row, col, new Rook(Color.WHITE, row, col));
             break;
           case 'n':
-            board[row][col] = new Knight(Color.BLACK, row, col);
+            board.set(row, col, new Knight(Color.BLACK, row, col));
             break;
           case 'N':
-            board[row][col] = new Knight(Color.WHITE, row, col);
+            board.set(row, col, new Knight(Color.WHITE, row, col));
             break;
           case 'b':
-            board[row][col] = new Bishop(Color.BLACK, row, col);
+            board.set(row, col, new Bishop(Color.BLACK, row, col));
             break;
           case 'B':
-            board[row][col] = new Bishop(Color.WHITE, row, col);
+            board.set(row, col, new Bishop(Color.WHITE, row, col));
             break;
           case 'q':
-            board[row][col] = new Queen(Color.BLACK, row, col);
+            board.set(row, col, new Queen(Color.BLACK, row, col));
             break;
           case 'Q':
-            board[row][col] = new Queen(Color.WHITE, row, col);
+            board.set(row, col, new Queen(Color.WHITE, row, col));
             break;
           case 'k':
-            board[row][col] = new King(Color.BLACK, row, col);
+            board.set(row, col, new King(Color.BLACK, row, col));
             break;
           case 'K':
-            board[row][col] = new King(Color.WHITE, row, col);
+            board.set(row, col, new King(Color.WHITE, row, col));
             break;
           default:
             throw new Error();
@@ -102,31 +102,19 @@ public class Game {
       }
     }
 
-    lastBoard = board;
+    backupBoard = board;
   }
 
   private void makeBackup() {
-    lastBoard = new Piece[ROWS][COLUMNS];
-    for (int row = 0; row < ROWS; row++) {
-      for (int col = 0; col < COLUMNS; col++) {
-        lastBoard[row][col] = board[row][col].makeCopy();
-      }
-    }
+    backupBoard = board.makeCopy();
   }
 
   private void restoreBoard() {
-    board = new Piece[ROWS][COLUMNS];
-    for (int row = 0; row < ROWS; row++) {
-      for (int col = 0; col < COLUMNS; col++) {
-        board[row][col] = lastBoard[row][col].makeCopy();
-      }
-    }
+    board = backupBoard.makeCopy();
   }
 
   private void doMove(int fromRow, int fromCol, int toRow, int toCol) {
-    board[toRow][toCol] = board[fromRow][fromCol].makeCopy();
-    board[toRow][toCol].moveTo(toRow, toCol);
-    board[fromRow][fromCol] = new Piece(fromRow, fromCol);
+    board.movePiece(fromRow, fromCol, toRow, toCol);
   }
 
   private void doMoveBackup(int fromRow, int fromCol, int toRow, int toCol) {
@@ -157,7 +145,7 @@ public class Game {
     int currentRow = fromRow + deltaRow;
     int currentCol = fromCol + deltaCol;
     while (currentRow != toRow || currentCol != toCol) {
-      if (board[currentRow][currentCol].getType() != PieceType.NONE) {
+      if (board.get(currentRow, currentCol).getType() != PieceType.NONE) {
         return false;
       }
       currentRow += deltaRow;
@@ -214,19 +202,19 @@ public class Game {
 
     //checks the piece is of the right color and that target square
     //is not occupied by that players piece
-    if (board[fromRow][fromCol].getColor() != currentPlayer) {
+    if (board.get(fromRow, fromCol).getColor() != currentPlayer) {
       return false;
     }
-    if (board[toRow][toCol].getColor() == currentPlayer) {
+    if (board.get(toRow, toCol).getColor() == currentPlayer) {
       return false;
     }
 
     //Special case if
     boolean pawnPass = false;
-    if (board[fromRow][fromCol].getType() == PieceType.PAWN) {
+    if (board.get(fromRow, fromCol).getType() == PieceType.PAWN) {
       //special check if piece is pawn
       if (toCol - fromCol == 0) {
-        if (board[toRow][toCol].getType() != PieceType.NONE) {
+        if (board.get(toRow, toCol).getType() != PieceType.NONE) {
           //if the piece moves forward and there is a piece there, it's an invalid move
           return false;
         }
@@ -235,21 +223,21 @@ public class Game {
           //fail if move if not moving 1 square diagonally
           return false;
         }
-        if (board[toRow][toCol].getColor() != Color.NONE
-                && board[toRow][toCol].getColor() != currentPlayer) {
+        if (board.get(toRow, toCol).getColor() != Color.NONE
+                && board.get(toRow, toCol).getColor() != currentPlayer) {
           pawnPass = true;
         }
       }
     }
 
     //checks that the move is possible for the piece
-    ArrayList<Position> possibleMoves = board[fromRow][fromCol].getPossibleMoves();
+    ArrayList<Position> possibleMoves = board.get(fromRow, fromCol).getPossibleMoves();
     if (!pawnPass && !possibleMoves.contains(new Position(toRow, toCol))) {
       return false;
     }
 
     //checks that no other pieces are in the way (unless piece is a knight)
-    if (board[fromRow][fromCol].getType() != PieceType.KNIGHT) {
+    if (board.get(fromRow, fromCol).getType() != PieceType.KNIGHT) {
       if (!checkForInBetweenPieces(fromRow, fromCol, toRow, toCol)) {
         return false;
       }
@@ -267,12 +255,12 @@ public class Game {
     }
 
     //special case if it's an castling
-    if ((      (board[fromRow][fromCol].getType() == PieceType.KING
-                && board[toRow][toCol].getType() == PieceType.ROOK)
-            || (board[fromRow][fromCol].getType() == PieceType.ROOK
-                && board[toRow][toCol].getType() == PieceType.KING))
-            && board[fromRow][fromCol].getColor() == currentPlayer
-            && board[toRow][toCol].getColor() == currentPlayer) {
+    if ((    (board.getType(fromRow, fromCol) == PieceType.KING
+           && board.getType(toRow, toCol) == PieceType.ROOK)
+         ||  (board.getType(fromRow, fromCol) == PieceType.ROOK
+           && board.getType(toRow, toCol) == PieceType.KING))
+         && board.getColor(fromRow, fromCol) == currentPlayer
+         && board.getColor(toRow,toCol) == currentPlayer) {
       return tryCastling(fromRow, fromCol, toRow, toCol);
     }
 
@@ -296,7 +284,7 @@ public class Game {
       return false;
     }
     //if pieces are swapped, swap pieces
-    if (board[kingRow][kingCol].getType() == PieceType.ROOK) {
+    if (board.getType(kingRow, kingCol) == PieceType.ROOK) {
       int tmp = kingRow;
       kingRow = rookRow;
       rookRow = tmp;
@@ -305,7 +293,7 @@ public class Game {
       rookCol = tmp;
     }
     //none of the pieces can have moved for an Castling to take place
-    if (board[kingRow][kingCol].getHasMoved() || board[rookRow][rookCol].getHasMoved()) {
+    if (board.getHasMoved(kingRow, kingCol) || board.getHasMoved(rookRow,rookCol)) {
       return false;
     }
     //there can be mo pieces between them
@@ -343,7 +331,7 @@ public class Game {
   Position detectPromotion() {
     Position promotePos = new Position(-1,-1);
     for (int col = 0; col < COLUMNS; col++) {
-      if (board[0][col].getType() == PieceType.PAWN) {
+      if (board.getType(0, col) == PieceType.PAWN) {
         //check upper row for pawns
         if (promotePos.col == -1) {
           promotePos = new Position(0,col);
@@ -351,7 +339,7 @@ public class Game {
           throw new Error();
         }
       }
-      if (board[ROWS - 1][col].getType() == PieceType.PAWN) {
+      if (board.getType(ROWS - 1, col) == PieceType.PAWN) {
         //check lower row for pawns
         if (promotePos.col == -1) {
           promotePos = new Position(ROWS - 1,col);
@@ -370,21 +358,21 @@ public class Game {
     if (piecePos.equals(new Position(-1,-1))) {
       return false;
     }
-    Color pieceColor = board[piecePos.row][piecePos.col].getColor();
+    Color pieceColor = board.getColor(piecePos.row, piecePos.col);
     if (promoteTo == PieceType.QUEEN) {
-      board[piecePos.row][piecePos.col] = new Queen(pieceColor, piecePos.row, piecePos.col);
+      board.set(piecePos.row, piecePos.col, new Queen(pieceColor, piecePos.row, piecePos.col));
       return true;
     }
     if (promoteTo == PieceType.BISHOP) {
-      board[piecePos.row][piecePos.col] = new Bishop(pieceColor, piecePos.row, piecePos.col);
+      board.set(piecePos.row, piecePos.col, new Bishop(pieceColor, piecePos.row, piecePos.col));
       return true;
     }
     if (promoteTo == PieceType.ROOK) {
-      board[piecePos.row][piecePos.col] = new Rook(pieceColor, piecePos.row, piecePos.col);
+      board.set(piecePos.row, piecePos.col, new Rook(pieceColor, piecePos.row, piecePos.col));
       return true;
     }
     if (promoteTo == PieceType.KNIGHT) {
-      board[piecePos.row][piecePos.col] = new Knight(pieceColor, piecePos.row, piecePos.col);
+      board.set(piecePos.row,piecePos.col, new Knight(pieceColor, piecePos.row, piecePos.col));
       return true;
     }
     return false;
@@ -414,7 +402,7 @@ public class Game {
   private Position findKing(Color player) {
     for (int row = 0; row < ROWS; row++) {
       for (int col = 0; col < COLUMNS; col++) {
-        if (board[row][col].getType() == PieceType.KING && board[row][col].getColor() == player) {
+        if (board.getType(row, col) == PieceType.KING && board.getColor(row, col) == player) {
           return new Position(row, col);
         }
       }
@@ -432,7 +420,7 @@ public class Game {
 
     for (int row = 0; row < ROWS; row++) {
       for (int col = 0; col < COLUMNS; col++) {
-        if (board[row][col].getColor() == currentPlayer) {
+        if (board.getColor(row, col) == currentPlayer) {
           if (simpleTryMove(row, col, king.row, king.col)) {
             currentPlayer = playerBackup;
             return true;
@@ -455,10 +443,10 @@ public class Game {
     currentPlayer = player;
     for (int row = 0; row < ROWS; row++) {
       for (int col = 0; col < COLUMNS; col++) {
-        if (board[row][col].getColor() != player) {
+        if (board.getColor(row, col) != player) {
           continue;
         }
-        ArrayList<Position> moves = board[row][col].getPossibleMoves();
+        ArrayList<Position> moves = board.getPossibleMoves(row, col);
         for (Position pos : moves) {
           if (tryMove(row, col, pos.row, pos.col)) {
             returnVal = false;
@@ -493,7 +481,7 @@ public class Game {
   }
 
   PieceType getPieceAt(int row, int col) {
-    return board[row][col].getType();
+    return board.getType(row, col);
   }
 
   public String[] getBoardAsString() {
@@ -502,7 +490,7 @@ public class Game {
     for (int row = 0; row < ROWS; row++) {
       printableBoard[row] = "";
       for (int col = 0; col < COLUMNS; col++) {
-        printableBoard[row] += board[row][col].getPieceCharacter();
+        printableBoard[row] += board.getPieceCharacter(row, col);
       }
     }
 
@@ -511,13 +499,13 @@ public class Game {
 
 
   //for debugging
-  private String[] getLastBoardAsString() {
+  private String[] getBackupBoardAsString() {
     String[] printableBoard = new String[ROWS];
 
     for (int row = 0; row < ROWS; row++) {
       printableBoard[row] = "";
       for (int col = 0; col < COLUMNS; col++) {
-        printableBoard[row] += lastBoard[row][col].getPieceCharacter();
+        printableBoard[row] += backupBoard.getPieceCharacter(row, col);
       }
     }
 
@@ -534,7 +522,7 @@ public class Game {
 
   //fro debugging
   private void printLastBoard() {
-    String[] outBoard = getLastBoardAsString();
+    String[] outBoard = getBackupBoardAsString();
     for (String row : outBoard) {
       System.out.println(row);
     }
