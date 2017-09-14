@@ -11,8 +11,8 @@ public class Game {
 
   private Board board = new Board();
   private Board backupBoard = new Board();
-
-  private ArrayList<Board> history = new ArrayList<>();
+  private Board lastBoard = new Board();
+  //private ArrayList<Board> history = new ArrayList<>();
 
   public Game() {
     //initialises board as a standard game
@@ -50,6 +50,8 @@ public class Game {
         board.set(row, col, new Piece());
       }
     }
+
+    lastBoard = board.makeCopy();
   }
 
   public Game(String[] initBoard) {
@@ -102,7 +104,7 @@ public class Game {
       }
     }
 
-    backupBoard = board;
+    lastBoard = board.makeCopy();
   }
 
   private void makeBackup() {
@@ -155,12 +157,9 @@ public class Game {
     return true;
   }
 
-
   void changePlayer() {
     currentPlayer = (currentPlayer == Color.WHITE ? Color.BLACK : Color.WHITE);
   }
-
-
 
 
   public ReturnValue makeMove(String from, String to) {
@@ -179,10 +178,18 @@ public class Game {
   }
 
   ReturnValue makeMove(int fromRow, int fromCol, int toRow, int toCol) {
+    //Board toPush = board.makeCopy();
     if (!tryMove(fromRow, fromCol, toRow, toCol)) {
       return ReturnValue.FAIL;
     }
-    doMoveBackup(fromRow, fromCol, toRow, toCol);
+    Board tempBoard = board.makeCopy();
+    //history.add(toPush);
+    if (isValidPassant(fromRow, fromCol, toRow, toCol)) {
+      doPassant(fromRow, fromCol, toRow, toCol);
+    } else {
+      doMove(fromRow, fromCol, toRow, toCol);
+    }
+    lastBoard = tempBoard;
     changePlayer();
     if (detectPromotion().equals(new Position(-1,-1))) {
       return ReturnValue.SUCCESS;
@@ -190,14 +197,69 @@ public class Game {
     return ReturnValue.PROMOTION;
   }
 
-  private boolean checkCoordinatesAreValid(int fromRow, int fromCol, int toRow, int toCol) {
+  private boolean coordinatesAreValid(int fromRow, int fromCol, int toRow, int toCol) {
     return (0 <= fromRow && fromRow < ROWS && 0 <= fromCol && fromCol < COLUMNS
             && 0 <= toRow && toRow < ROWS && 0 <= toCol && toCol < COLUMNS);
   }
 
-  boolean simpleTryMove(int fromRow, int fromCol, int toRow, int toCol) {
-    if (!checkCoordinatesAreValid(fromRow, fromCol, toRow, toCol)) {
+  boolean isValidPassant(int fromRow, int fromCol, int toRow, int toCol) {
+    if (!coordinatesAreValid(fromRow, fromCol, toRow, toCol)) {
       return false;
+    }
+    //piece has to be pawn belonging to the current player
+    if (board.getColor(fromRow, fromCol) != currentPlayer) {
+      return false;
+    }
+    if (board.getType(fromRow, fromCol) != PieceType.PAWN) {
+      return false;
+    }
+    //square has to be empty for a passant to be possible
+    if (board.getType(toRow, toCol) != PieceType.NONE) {
+      return false;
+    }
+    int deltaRow = (currentPlayer == Color.WHITE ? -1 : 1);
+    //move have to be 1 step diagonal
+    if (toRow - fromRow != deltaRow || Math.abs(toCol - fromCol) != 1) {
+      return false;
+    }
+    //piece below has to be pawn
+    if (board.getType(toRow - deltaRow, toCol) != PieceType.PAWN) {
+      return false;
+    }
+    //and the right color
+    if (board.getColor(toRow - deltaRow, toCol) == currentPlayer) {
+      return false;
+    }
+    //the piece moved there the last move
+    if (lastBoard.getType(toRow - deltaRow, toCol) != PieceType.NONE) {
+      return false;
+    }
+    if (lastBoard.getType(toRow + deltaRow, toCol) != PieceType.PAWN) {
+      return false;
+    }
+    if (lastBoard.getColor(toRow + deltaRow, toCol) == currentPlayer) {
+      return false;
+    }
+    return true;
+  }
+
+  void doPassant(int fromRow, int fromCol, int toRow, int toCol) {
+    int deltaRow = (currentPlayer == Color.WHITE ? -1 : 1);
+    board.movePiece(fromRow, fromCol, toRow, toCol);
+    board.set(toRow - deltaRow, toCol, new Piece());
+  }
+
+  boolean simpleTryMove(int fromRow, int fromCol, int toRow, int toCol) {
+    //tryMove that only checks if a piece can move from one place to another
+    //without checking more complicated stuff like check and castling
+
+    if (!coordinatesAreValid(fromRow, fromCol, toRow, toCol)) {
+      return false;
+    }
+
+    boolean passantPass = false;
+    if (isValidPassant(fromRow, fromCol, toRow, toCol)) {
+      passantPass = true;
     }
 
     //checks the piece is of the right color and that target square
@@ -209,10 +271,8 @@ public class Game {
       return false;
     }
 
-    //Special case if
-    boolean pawnPass = false;
-    if (board.getType(fromRow, fromCol) == PieceType.PAWN) {
-      //special check if piece is pawn
+    if (!passantPass && board.getType(fromRow, fromCol) == PieceType.PAWN) {
+      //special case if piece is pawn
       if (toCol - fromCol == 0) {
         if (board.getType(toRow, toCol) != PieceType.NONE) {
           //if the piece moves forward and there is a piece there, it's an invalid move
@@ -220,19 +280,19 @@ public class Game {
         }
       } else {
         if (Math.abs(toCol - fromCol) != 1 || Math.abs(toRow - fromRow) != 1) {
-          //fail if move if not moving 1 square diagonally
+          //fail if not moving 1 square diagonally
           return false;
         }
-        if (board.getColor(toRow, toCol) != Color.NONE
-                && board.get(toRow, toCol).getColor() != currentPlayer) {
-          pawnPass = true;
+        if (board.getColor(toRow, toCol) == Color.NONE
+                || board.getColor(toRow, toCol) == currentPlayer) {
+          return false;
         }
       }
     }
 
     //checks that the move is possible for the piece
     ArrayList<Position> possibleMoves = board.getPossibleMoves(fromRow, fromCol);
-    if (!pawnPass && !possibleMoves.contains(new Position(toRow, toCol))) {
+    if (!possibleMoves.contains(new Position(toRow, toCol))) {
       return false;
     }
 
@@ -246,27 +306,37 @@ public class Game {
     return true;
   }
 
+  boolean isCastlingConditons(int fromRow, int fromCol, int toRow, int toCol) {
 
-  //tries to do a move, if possible, does move and returns true, otherwise returns false
+    // the pieces has to be a King and a Rook
+    if (!(board.getType(fromRow, fromCol) == PieceType.KING
+            && board.getType(toRow, toCol) == PieceType.ROOK)
+            || (board.getType(fromRow, fromCol) == PieceType.ROOK
+            && board.getType(toRow, toCol) == PieceType.KING)) {
+      return false;
+    }
+
+    //the pieces have to be the right color
+    return board.getColor(fromRow, fromCol) == currentPlayer
+            && board.getColor(toRow, toCol) == currentPlayer;
+  }
+
   boolean tryMove(int fromRow, int fromCol, int toRow, int toCol) {
+    //tries to do a move, if possible, does move and returns true, otherwise returns false
 
-    if (!checkCoordinatesAreValid(fromRow, fromCol, toRow, toCol)) {
+    if (!coordinatesAreValid(fromRow, fromCol, toRow, toCol)) {
       return false;
     }
 
     //special case if it's an castling
-    if ((    (board.getType(fromRow, fromCol) == PieceType.KING
-           && board.getType(toRow, toCol) == PieceType.ROOK)
-         ||  (board.getType(fromRow, fromCol) == PieceType.ROOK
-           && board.getType(toRow, toCol) == PieceType.KING))
-         && board.getColor(fromRow, fromCol) == currentPlayer
-         && board.getColor(toRow,toCol) == currentPlayer) {
+    if (isCastlingConditons(fromRow, fromCol, toRow, toCol)) {
       return tryCastling(fromRow, fromCol, toRow, toCol);
     }
 
     if (!simpleTryMove(fromRow, fromCol, toRow, toCol)) {
       return false;
     }
+
     //makes sure that move does not result in a check
     doMoveBackup(fromRow, fromCol, toRow, toCol);
     if (isInCheck(currentPlayer)) {
@@ -324,8 +394,6 @@ public class Game {
     return true;
   }
 
-
-
   // (-1,-1) indicates that no promotion is available
   // will throw error if more than one promotion is available
   Position detectPromotion() {
@@ -350,8 +418,6 @@ public class Game {
     }
     return promotePos;
   }
-
-
 
   private boolean doPromotion(PieceType promoteTo) {
     Position piecePos = detectPromotion();
@@ -398,7 +464,6 @@ public class Game {
   }
 
 
-
   private Position findKing(Color player) {
     for (int row = 0; row < ROWS; row++) {
       for (int col = 0; col < COLUMNS; col++) {
@@ -409,8 +474,6 @@ public class Game {
     }
     return new Position(-1,-1);
   }
-
-
 
   private boolean isInCheck(Color player) {
     Position king = findKing(player);
@@ -428,11 +491,10 @@ public class Game {
         }
       }
     }
+
     currentPlayer = playerBackup;
     return false;
   }
-
-
 
   private boolean isInCheckmate(Color player) {
     if (!isInCheck(player)) {
@@ -441,6 +503,7 @@ public class Game {
     boolean returnVal = true;
     Color backupPlayer = currentPlayer;
     currentPlayer = player;
+
     for (int row = 0; row < ROWS; row++) {
       for (int col = 0; col < COLUMNS; col++) {
         if (board.getColor(row, col) != player) {
@@ -454,6 +517,7 @@ public class Game {
         }
       }
     }
+
     currentPlayer = backupPlayer;
     return returnVal;
   }
@@ -480,9 +544,9 @@ public class Game {
     return currentPlayer;
   }
 
-  PieceType getPieceAt(int row, int col) {
+  /*PieceType getPieceAt(int row, int col) {
     return board.getType(row, col);
-  }
+  }*/
 
   public String[] getBoardAsString() {
     String[] printableBoard = new String[ROWS];
@@ -497,15 +561,14 @@ public class Game {
     return printableBoard;
   }
 
-
   //for debugging
-  private String[] getBackupBoardAsString() {
+  private String[] getLastBoardAsString() {
     String[] printableBoard = new String[ROWS];
 
     for (int row = 0; row < ROWS; row++) {
       printableBoard[row] = "";
       for (int col = 0; col < COLUMNS; col++) {
-        printableBoard[row] += backupBoard.getPieceCharacter(row, col);
+        printableBoard[row] += lastBoard.getPieceCharacter(row, col);
       }
     }
 
@@ -519,10 +582,9 @@ public class Game {
     }
   }
 
-
-  //fro debugging
+  //for debugging
   private void printLastBoard() {
-    String[] outBoard = getBackupBoardAsString();
+    String[] outBoard = getLastBoardAsString();
     for (String row : outBoard) {
       System.out.println(row);
     }

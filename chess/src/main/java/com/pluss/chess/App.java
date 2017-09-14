@@ -36,10 +36,10 @@ public class App {
 
 
   private static void printInstructions() {
-    System.out.println("Moves are entered in standard chess move form");
-    System.out.println("Example: a2 a4");
+    System.out.println("Moves are entered in my variation of algebraic chess notation");
+    System.out.println("Example: a2 a4 moves the piece on a2 to a4");
     System.out.println("First the square to move from and then the square to move to");
-    System.out.println("Castling and promotion is available, but not passant");
+    System.out.println("Castling, promotion and passant are all available");
   }
 
   private static void getPromotion() {

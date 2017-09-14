@@ -307,4 +307,43 @@ public class GameTest extends TestCase {
 
     assertTrue(testGame.detectPromotion().equals(new Position(-1,-1)));
   }
+
+  public void testPassantSuccess() throws Exception {
+    String[] initStrings =
+                   {"rnbqkbnr",
+                    "pppppppp",
+                    "........",
+                    "......P.",
+                    "........",
+                    "........",
+                    "PPPPPPPP",
+                    "RNBQKBNR"};
+    Game testGame = new Game(initStrings);
+
+    testGame.changePlayer();
+    testGame.makeMove("h7", "h5");
+
+    assertTrue(testGame.isValidPassant(3, 6, 2, 7));
+  }
+
+  public void testPassantFail() throws Exception {
+    String[] initStrings =
+                   {"rnbqkbnr",
+                    "pppppppp",
+                    "........",
+                    "......P.",
+                    "........",
+                    "........",
+                    "PPPPPPPP",
+                    "RNBQKBNR"};
+    Game testGame = new Game(initStrings);
+
+    testGame.changePlayer();
+    testGame.makeMove("h7", "h5");
+    testGame.makeMove("a2", "a4");
+    testGame.makeMove("a7", "a5");
+
+    assertFalse(testGame.isValidPassant(5, 6, 6, 7));
+    assertFalse(testGame.makeMove(5, 6, 6, 7) != ReturnValue.FAIL);
+  }
 }

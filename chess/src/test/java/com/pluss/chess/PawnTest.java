@@ -10,7 +10,7 @@ public class PawnTest extends TestCase {
 
     ArrayList<Position> moves = testPawn.getPossibleMoves(6, 1);
 
-    assertEquals(2, moves.size());
+    assertEquals(4, moves.size());
     assertTrue(moves.contains(new Position(5, 1)));
     assertTrue(moves.contains(new Position(4, 1)));
   }

@@ -30,6 +30,12 @@ public class Pawn extends Piece {
 
     if (0 <= row + deltaRow && row + deltaRow < ROWS) {
       possibleMoves.add(new Position(row + deltaRow, col));
+      if (col > 0) {
+        possibleMoves.add(new Position(row + deltaRow, col-1));
+      }
+      if (col < COLUMNS - 1) {
+        possibleMoves.add(new Position(row + deltaRow, col+1));
+      }
     }
     //can move two tiles if it hasn't moved before
     if (!hasMoved && 0 <= row + 2 * deltaRow && row + 2 * deltaRow < ROWS) {
