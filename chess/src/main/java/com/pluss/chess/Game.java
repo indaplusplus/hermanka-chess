@@ -143,17 +143,15 @@ public class Game {
       return false;
     }
 
-    int fromCol = (int)from.charAt(0) - (int)'a';
-    int fromRow = ROWS - Character.getNumericValue(from.charAt(1));
-    int toCol = (int)to.charAt(0) - (int)'a';
-    int toRow = ROWS - Character.getNumericValue(to.charAt(1));
+    Position fromPos = convertSquareNotationToCoordinates(from);
+    Position toPos = convertSquareNotationToCoordinates(to);
 
-    return makeMove(fromRow, fromCol, toRow, toCol);
+    return makeMove(fromPos.row, fromPos.col, toPos.row, toPos.col);
   }
 
   boolean makeMove(int fromRow, int fromCol, int toRow, int toCol) {
     //Board toPush = board.makeCopy();
-    if (!tryMove(fromRow, fromCol, toRow, toCol)) {
+    if (!isValidMove(fromRow, fromCol, toRow, toCol)) {
       return false;
     }
     Board tempBoard = board.makeCopy();
@@ -223,6 +221,16 @@ public class Game {
    * Functions that tries and checks moves
    */
 
+  public boolean isValidMove(String from, String to) {
+    if (from.length() != 2 || to.length() != 2) {
+      return false;
+    }
+    Position fromPos = convertSquareNotationToCoordinates(from);
+    Position toPos = convertSquareNotationToCoordinates(to);
+
+    return isValidMove(fromPos.row, fromPos.col, toPos.row, toPos.col);
+  }
+
   boolean isValidPassant(int fromRow, int fromCol, int toRow, int toCol) {
     if (!coordinatesAreValid(fromRow, fromCol, toRow, toCol)) {
       return false;
@@ -264,8 +272,8 @@ public class Game {
     return true;
   }
 
-  boolean simpleTryMove(int fromRow, int fromCol, int toRow, int toCol) {
-    //tryMove that only checks if a piece can move from one place to another
+  boolean isValidMoveWithoutRecursion(int fromRow, int fromCol, int toRow, int toCol) {
+    //isValidMove that only checks if a piece can move from one place to another
     //without checking more complicated stuff like check and castling
 
     if (!coordinatesAreValid(fromRow, fromCol, toRow, toCol)) {
@@ -322,7 +330,7 @@ public class Game {
   }
 
 
-  boolean tryMove(int fromRow, int fromCol, int toRow, int toCol) {
+  boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol) {
     //tries to do a move, if possible, does move and returns true, otherwise returns false
 
     if (!coordinatesAreValid(fromRow, fromCol, toRow, toCol)) {
@@ -334,7 +342,7 @@ public class Game {
       return tryCastling(fromRow, fromCol, toRow, toCol);
     }
 
-    if (!simpleTryMove(fromRow, fromCol, toRow, toCol)) {
+    if (!isValidMoveWithoutRecursion(fromRow, fromCol, toRow, toCol)) {
       return false;
     }
 
@@ -455,7 +463,7 @@ public class Game {
     for (int row = 0; row < ROWS; row++) {
       for (int col = 0; col < COLUMNS; col++) {
         if (board.getColor(row, col) == currentPlayer) {
-          if (simpleTryMove(row, col, king.row, king.col)) {
+          if (isValidMoveWithoutRecursion(row, col, king.row, king.col)) {
             currentPlayer = playerBackup;
             return true;
           }
@@ -482,7 +490,7 @@ public class Game {
         }
         ArrayList<Position> moves = board.getPossibleMoves(row, col);
         for (Position pos : moves) {
-          if (tryMove(row, col, pos.row, pos.col)) {
+          if (isValidMove(row, col, pos.row, pos.col)) {
             returnVal = false;
           }
         }
@@ -494,15 +502,80 @@ public class Game {
   }
 
   /*
-   * Other stuff
+   * "Getters"
    */
-  
-  void changePlayer() {
-    currentPlayer = (currentPlayer == Color.WHITE ? Color.BLACK : Color.WHITE);
+
+  //will probably be useful for GUI
+  public ArrayList<String> getAllAvailableMovesFromSquare(String square) {
+    Position from = convertSquareNotationToCoordinates(square);
+    ArrayList<String> allMoves = new ArrayList<>();
+
+    for (int toRow = 0; toRow < ROWS; toRow++) {
+      for (int toCol = 0; toCol < COLUMNS; toCol++) {
+        if (isValidMove(from.row, from.col, toRow, toCol)) {
+          allMoves.add(convertCoordinatesToSquareNotation(toRow, toCol));
+        }
+      }
+    }
+
+    return allMoves;
+  }
+
+  public boolean hasWhiteWon() {
+    return isInCheckmate(Color.BLACK);
+  }
+
+  public boolean hasBlackWon() {
+    return isInCheckmate(Color.WHITE);
+  }
+
+  public boolean isWhiteInCheck() {
+    return isInCheck(Color.WHITE);
+  }
+
+  public boolean isBlackInCheck() {
+    return isInCheck(Color.BLACK);
+  }
+
+  public Color getCurrentPlayer() {
+    return currentPlayer;
   }
 
   public boolean promotionAvailable() {
     return !findPromotion().equals(new Position(-1,-1));
+  }
+
+  public String[] getBoardAsString() {
+    String[] printableBoard = new String[ROWS];
+
+    for (int row = 0; row < ROWS; row++) {
+      printableBoard[row] = "";
+      for (int col = 0; col < COLUMNS; col++) {
+        printableBoard[row] += board.getPieceCharacter(row, col);
+      }
+    }
+
+    return printableBoard;
+  }
+
+  /*
+   * Convenience and debugging methods
+   */
+  private Position convertSquareNotationToCoordinates(String square) {
+    int col = (int)square.charAt(0) - (int)'a';
+    int row = ROWS - Character.getNumericValue(square.charAt(1));
+    return new Position(row, col);
+  }
+
+  private String convertCoordinatesToSquareNotation(int row, int col) {
+    StringBuilder square = new StringBuilder();
+    square.append((char)((int)'a' + col));
+    square.append(ROWS - row);
+    return square.toString();
+  }
+
+  void changePlayer() {
+    currentPlayer = (currentPlayer == Color.WHITE ? Color.BLACK : Color.WHITE);
   }
 
   // (-1,-1) indicates that no promotion is available
@@ -541,43 +614,6 @@ public class Game {
     return new Position(-1,-1);
   }
 
-  public boolean hasWhiteWon() {
-    return isInCheckmate(Color.BLACK);
-  }
-
-  public boolean hasBlackWon() {
-    return isInCheckmate(Color.WHITE);
-  }
-
-  public boolean isWhiteInCheck() {
-    return isInCheck(Color.WHITE);
-  }
-
-  public boolean isBlackInCheck() {
-    return isInCheck(Color.BLACK);
-  }
-
-  public Color getCurrentPlayer() {
-    return currentPlayer;
-  }
-
-  /*PieceType getPieceAt(int row, int col) {
-    return board.getType(row, col);
-  }*/
-
-  public String[] getBoardAsString() {
-    String[] printableBoard = new String[ROWS];
-
-    for (int row = 0; row < ROWS; row++) {
-      printableBoard[row] = "";
-      for (int col = 0; col < COLUMNS; col++) {
-        printableBoard[row] += board.getPieceCharacter(row, col);
-      }
-    }
-
-    return printableBoard;
-  }
-
   //for debugging
   private String[] getLastBoardAsString() {
     String[] printableBoard = new String[ROWS];
@@ -593,7 +629,7 @@ public class Game {
   }
 
   //for debugging
-  public void printBoard() {
+  void printBoard() {
     String[] outBoard = getBoardAsString();
     for (String row : outBoard) {
       System.out.println(row);

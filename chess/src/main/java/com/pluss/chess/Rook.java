@@ -2,9 +2,9 @@ package com.pluss.chess;
 
 import java.util.ArrayList;
 
-public class Rook extends Piece {
+class Rook extends Piece {
 
-  public Rook(Color color) {
+  Rook(Color color) {
     super();
     this.color = color;
     this.type = PieceType.ROOK;
@@ -17,7 +17,7 @@ public class Rook extends Piece {
   }
 
   @Override
-  public ArrayList<Position> getPossibleMoves(int row, int col) {
+  ArrayList<Position> getPossibleMoves(int row, int col) {
     ArrayList<Position> possibleMoves = new ArrayList<>();
 
     for (int currentRow = 0; currentRow < ROWS; currentRow++) {

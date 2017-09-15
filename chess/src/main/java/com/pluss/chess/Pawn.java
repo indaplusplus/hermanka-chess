@@ -2,7 +2,7 @@ package com.pluss.chess;
 
 import java.util.ArrayList;
 
-public class Pawn extends Piece {
+class Pawn extends Piece {
 
   Pawn(Color color) {
     super();

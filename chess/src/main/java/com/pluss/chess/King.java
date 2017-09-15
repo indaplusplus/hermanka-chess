@@ -2,9 +2,9 @@ package com.pluss.chess;
 
 import java.util.ArrayList;
 
-public class King extends Piece {
+class King extends Piece {
 
-  public King(Color color) {
+  King(Color color) {
     super();
     this.color = color;
     this.type = PieceType.KING;
@@ -17,7 +17,7 @@ public class King extends Piece {
   }
 
   @Override
-  public ArrayList<Position> getPossibleMoves(int row, int col) {
+  ArrayList<Position> getPossibleMoves(int row, int col) {
     ArrayList<Position> possibleMoves = new ArrayList<>();
 
     for (int deltaRow = -1; deltaRow < 2; deltaRow++) {

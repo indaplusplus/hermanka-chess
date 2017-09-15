@@ -81,7 +81,7 @@ public class GameTest extends TestCase {
                     "RNBQKBNR"};
     Game testGame = new Game(initStrings);
 
-    assertTrue(testGame.tryMove(7, 6, 5, 5));
+    assertTrue(testGame.isValidMove(7, 6, 5, 5));
 
     String[] currentBoard = testGame.getBoardAsString();
     for (int row = 0; row < Game.ROWS; row++) {

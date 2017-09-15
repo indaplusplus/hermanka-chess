@@ -2,9 +2,9 @@ package com.pluss.chess;
 
 import java.util.ArrayList;
 
-public class Bishop extends Piece {
+class Bishop extends Piece {
 
-  public Bishop(Color color) {
+  Bishop(Color color) {
     super();
     this.color = color;
     this.type = PieceType.BISHOP;
@@ -17,7 +17,7 @@ public class Bishop extends Piece {
   }
 
   @Override
-  public ArrayList<Position> getPossibleMoves(int row, int col) {
+  ArrayList<Position> getPossibleMoves(int row, int col) {
     ArrayList<Position> possibleMoves = new ArrayList<>();
     int[] deltaRow = {1,1,-1,-1};
     int[] deltaCol = {1,-1,1,-1};
