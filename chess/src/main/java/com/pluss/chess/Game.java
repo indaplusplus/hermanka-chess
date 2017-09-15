@@ -9,10 +9,13 @@ public class Game {
 
   private Color currentPlayer = Color.WHITE;
 
-  private Board board = new Board();
-  private Board backupBoard = new Board();
-  private Board lastBoard = new Board();
-  //private ArrayList<Board> history = new ArrayList<>();
+  private Board board = new Board(); //main board
+  private Board backupBoard = new Board(); //board used for testing moves
+  private Board lastBoard = new Board(); //Board before the last move
+
+  /*
+   * CONSTRUCTORS
+   */
 
   public Game() {
     //initialises board as a standard game
@@ -107,6 +110,10 @@ public class Game {
     lastBoard = board.makeCopy();
   }
 
+  /*
+   * Make Moves stuff
+   */
+
   private void makeBackup() {
     backupBoard = board.makeCopy();
   }
@@ -129,44 +136,11 @@ public class Game {
     restoreBoard();
   }
 
-
-  boolean checkForInBetweenPieces(int fromRow, int fromCol, int toRow, int toCol) {
-    //checks if there is any pieces on the line from (fromRow, fromCol) to (toRow, toCol)
-    //check does not include starting and ending squares and assumes that the lines angle
-    //is an multiple of 45 deg
-    //returns false if there are pieces in between
-    int deltaRow = 0;
-    if (fromRow != toRow) {
-      deltaRow = fromRow < toRow ? 1 : -1;
-    }
-    int deltaCol = 0;
-    if (fromCol != toCol) {
-      deltaCol = fromCol < toCol ? 1 : -1;
-    }
-
-    int currentRow = fromRow + deltaRow;
-    int currentCol = fromCol + deltaCol;
-    while (currentRow != toRow || currentCol != toCol) {
-      if (board.getType(currentRow, currentCol) != PieceType.NONE) {
-        return false;
-      }
-      currentRow += deltaRow;
-      currentCol += deltaCol;
-    }
-
-    return true;
-  }
-
-  void changePlayer() {
-    currentPlayer = (currentPlayer == Color.WHITE ? Color.BLACK : Color.WHITE);
-  }
-
-
-  public ReturnValue makeMove(String from, String to) {
+  public boolean makeMove(String from, String to) {
     //takes input in standard chess move form and converts it to row/col form
     //then calls the real makeMove
     if (from.length() != 2 || to.length() != 2) {
-      return ReturnValue.FAIL;
+      return false;
     }
 
     int fromCol = (int)from.charAt(0) - (int)'a';
@@ -177,10 +151,10 @@ public class Game {
     return makeMove(fromRow, fromCol, toRow, toCol);
   }
 
-  ReturnValue makeMove(int fromRow, int fromCol, int toRow, int toCol) {
+  boolean makeMove(int fromRow, int fromCol, int toRow, int toCol) {
     //Board toPush = board.makeCopy();
     if (!tryMove(fromRow, fromCol, toRow, toCol)) {
-      return ReturnValue.FAIL;
+      return false;
     }
     Board tempBoard = board.makeCopy();
     //history.add(toPush);
@@ -191,16 +165,63 @@ public class Game {
     }
     lastBoard = tempBoard;
     changePlayer();
-    if (detectPromotion().equals(new Position(-1,-1))) {
-      return ReturnValue.SUCCESS;
-    }
-    return ReturnValue.PROMOTION;
+
+    return true;
   }
 
-  private boolean coordinatesAreValid(int fromRow, int fromCol, int toRow, int toCol) {
-    return (0 <= fromRow && fromRow < ROWS && 0 <= fromCol && fromCol < COLUMNS
-            && 0 <= toRow && toRow < ROWS && 0 <= toCol && toCol < COLUMNS);
+  void doPassant(int fromRow, int fromCol, int toRow, int toCol) {
+    int deltaRow = (currentPlayer == Color.WHITE ? -1 : 1);
+    board.movePiece(fromRow, fromCol, toRow, toCol);
+    board.set(toRow - deltaRow, toCol, new Piece());
   }
+
+  private boolean doPromotion(PieceType promoteTo) {
+    Position piecePos = findPromotion();
+    if (piecePos.equals(new Position(-1,-1))) {
+      return false;
+    }
+    Color pieceColor = board.getColor(piecePos.row, piecePos.col);
+    if (promoteTo == PieceType.QUEEN) {
+      board.set(piecePos.row, piecePos.col, new Queen(pieceColor));
+      return true;
+    }
+    if (promoteTo == PieceType.BISHOP) {
+      board.set(piecePos.row, piecePos.col, new Bishop(pieceColor));
+      return true;
+    }
+    if (promoteTo == PieceType.ROOK) {
+      board.set(piecePos.row, piecePos.col, new Rook(pieceColor));
+      return true;
+    }
+    if (promoteTo == PieceType.KNIGHT) {
+      board.set(piecePos.row,piecePos.col, new Knight(pieceColor));
+      return true;
+    }
+    return false;
+  }
+
+  public boolean doPromotion(char promoteTo) {
+    switch (promoteTo) {
+      case 'n':
+      case 'N':
+        return doPromotion(PieceType.KNIGHT);
+      case 'q':
+      case 'Q':
+        return doPromotion(PieceType.QUEEN);
+      case 'b':
+      case 'B':
+        return doPromotion(PieceType.BISHOP);
+      case 'r':
+      case 'R':
+        return doPromotion(PieceType.ROOK);
+      default:
+        return false;
+    }
+  }
+
+  /*
+   * Functions that tries and checks moves
+   */
 
   boolean isValidPassant(int fromRow, int fromCol, int toRow, int toCol) {
     if (!coordinatesAreValid(fromRow, fromCol, toRow, toCol)) {
@@ -241,12 +262,6 @@ public class Game {
       return false;
     }
     return true;
-  }
-
-  void doPassant(int fromRow, int fromCol, int toRow, int toCol) {
-    int deltaRow = (currentPlayer == Color.WHITE ? -1 : 1);
-    board.movePiece(fromRow, fromCol, toRow, toCol);
-    board.set(toRow - deltaRow, toCol, new Piece());
   }
 
   boolean simpleTryMove(int fromRow, int fromCol, int toRow, int toCol) {
@@ -306,20 +321,6 @@ public class Game {
     return true;
   }
 
-  boolean isCastlingConditons(int fromRow, int fromCol, int toRow, int toCol) {
-
-    // the pieces has to be a King and a Rook
-    if (!(board.getType(fromRow, fromCol) == PieceType.KING
-            && board.getType(toRow, toCol) == PieceType.ROOK)
-            || (board.getType(fromRow, fromCol) == PieceType.ROOK
-            && board.getType(toRow, toCol) == PieceType.KING)) {
-      return false;
-    }
-
-    //the pieces have to be the right color
-    return board.getColor(fromRow, fromCol) == currentPlayer
-            && board.getColor(toRow, toCol) == currentPlayer;
-  }
 
   boolean tryMove(int fromRow, int fromCol, int toRow, int toCol) {
     //tries to do a move, if possible, does move and returns true, otherwise returns false
@@ -394,85 +395,55 @@ public class Game {
     return true;
   }
 
-  // (-1,-1) indicates that no promotion is available
-  // will throw error if more than one promotion is available
-  Position detectPromotion() {
-    Position promotePos = new Position(-1,-1);
-    for (int col = 0; col < COLUMNS; col++) {
-      if (board.getType(0, col) == PieceType.PAWN) {
-        //check upper row for pawns
-        if (promotePos.col == -1) {
-          promotePos = new Position(0,col);
-        } else {
-          throw new Error();
-        }
-      }
-      if (board.getType(ROWS - 1, col) == PieceType.PAWN) {
-        //check lower row for pawns
-        if (promotePos.col == -1) {
-          promotePos = new Position(ROWS - 1,col);
-        } else {
-          throw new Error();
-        }
-      }
+  /*
+   * Checkers
+   */
+
+  boolean checkForInBetweenPieces(int fromRow, int fromCol, int toRow, int toCol) {
+    //checks if there is any pieces on the line from (fromRow, fromCol) to (toRow, toCol)
+    //check does not include starting and ending squares and assumes that the lines angle
+    //is an multiple of 45 deg
+    //returns false if there are pieces in between
+    int deltaRow = 0;
+    if (fromRow != toRow) {
+      deltaRow = fromRow < toRow ? 1 : -1;
     }
-    return promotePos;
+    int deltaCol = 0;
+    if (fromCol != toCol) {
+      deltaCol = fromCol < toCol ? 1 : -1;
+    }
+
+    int currentRow = fromRow + deltaRow;
+    int currentCol = fromCol + deltaCol;
+    while (currentRow != toRow || currentCol != toCol) {
+      if (board.getType(currentRow, currentCol) != PieceType.NONE) {
+        return false;
+      }
+      currentRow += deltaRow;
+      currentCol += deltaCol;
+    }
+
+    return true;
   }
 
-  private boolean doPromotion(PieceType promoteTo) {
-    Position piecePos = detectPromotion();
-    if (piecePos.equals(new Position(-1,-1))) {
+  boolean isCastlingConditons(int fromRow, int fromCol, int toRow, int toCol) {
+
+    // the pieces has to be a King and a Rook
+    if (!(board.getType(fromRow, fromCol) == PieceType.KING
+            && board.getType(toRow, toCol) == PieceType.ROOK)
+            || (board.getType(fromRow, fromCol) == PieceType.ROOK
+            && board.getType(toRow, toCol) == PieceType.KING)) {
       return false;
     }
-    Color pieceColor = board.getColor(piecePos.row, piecePos.col);
-    if (promoteTo == PieceType.QUEEN) {
-      board.set(piecePos.row, piecePos.col, new Queen(pieceColor));
-      return true;
-    }
-    if (promoteTo == PieceType.BISHOP) {
-      board.set(piecePos.row, piecePos.col, new Bishop(pieceColor));
-      return true;
-    }
-    if (promoteTo == PieceType.ROOK) {
-      board.set(piecePos.row, piecePos.col, new Rook(pieceColor));
-      return true;
-    }
-    if (promoteTo == PieceType.KNIGHT) {
-      board.set(piecePos.row,piecePos.col, new Knight(pieceColor));
-      return true;
-    }
-    return false;
+
+    //the pieces have to be the right color
+    return board.getColor(fromRow, fromCol) == currentPlayer
+            && board.getColor(toRow, toCol) == currentPlayer;
   }
 
-  public boolean doPromotion(char promoteTo) {
-    switch (promoteTo) {
-      case 'n':
-      case 'N':
-        return doPromotion(PieceType.KNIGHT);
-      case 'q':
-      case 'Q':
-        return doPromotion(PieceType.QUEEN);
-      case 'b':
-      case 'B':
-        return doPromotion(PieceType.BISHOP);
-      case 'r':
-      case 'R':
-        return doPromotion(PieceType.ROOK);
-      default:
-        return false;
-    }
-  }
-
-
-  private Position findKing(Color player) {
-    for (int row = 0; row < ROWS; row++) {
-      for (int col = 0; col < COLUMNS; col++) {
-        if (board.getType(row, col) == PieceType.KING && board.getColor(row, col) == player) {
-          return new Position(row, col);
-        }
-      }
-    }
-    return new Position(-1,-1);
+  private boolean coordinatesAreValid(int fromRow, int fromCol, int toRow, int toCol) {
+    return (0 <= fromRow && fromRow < ROWS && 0 <= fromCol && fromCol < COLUMNS
+            && 0 <= toRow && toRow < ROWS && 0 <= toCol && toCol < COLUMNS);
   }
 
   private boolean isInCheck(Color player) {
@@ -522,7 +493,53 @@ public class Game {
     return returnVal;
   }
 
+  /*
+   * Other stuff
+   */
+  
+  void changePlayer() {
+    currentPlayer = (currentPlayer == Color.WHITE ? Color.BLACK : Color.WHITE);
+  }
 
+  public boolean promotionAvailable() {
+    return !findPromotion().equals(new Position(-1,-1));
+  }
+
+  // (-1,-1) indicates that no promotion is available
+  // will throw error if more than one promotion is available
+  Position findPromotion() {
+    Position promotePos = new Position(-1,-1);
+    for (int col = 0; col < COLUMNS; col++) {
+      if (board.getType(0, col) == PieceType.PAWN) {
+        //check upper row for pawns
+        if (promotePos.col == -1) {
+          promotePos = new Position(0,col);
+        } else {
+          throw new Error();
+        }
+      }
+      if (board.getType(ROWS - 1, col) == PieceType.PAWN) {
+        //check lower row for pawns
+        if (promotePos.col == -1) {
+          promotePos = new Position(ROWS - 1,col);
+        } else {
+          throw new Error();
+        }
+      }
+    }
+    return promotePos;
+  }
+
+  private Position findKing(Color player) {
+    for (int row = 0; row < ROWS; row++) {
+      for (int col = 0; col < COLUMNS; col++) {
+        if (board.getType(row, col) == PieceType.KING && board.getColor(row, col) == player) {
+          return new Position(row, col);
+        }
+      }
+    }
+    return new Position(-1,-1);
+  }
 
   public boolean hasWhiteWon() {
     return isInCheckmate(Color.BLACK);
@@ -575,6 +592,7 @@ public class Game {
     return printableBoard;
   }
 
+  //for debugging
   public void printBoard() {
     String[] outBoard = getBoardAsString();
     for (String row : outBoard) {

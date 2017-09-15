@@ -103,7 +103,7 @@ public class GameTest extends TestCase {
 
 
     testGame.changePlayer();
-    assertTrue(testGame.makeMove(3, 6, 4, 7) == ReturnValue.SUCCESS);
+    assertTrue(testGame.makeMove(3, 6, 4, 7));
 
     String[] correctStrings =
                    {"rnbqk.nr",
@@ -157,8 +157,8 @@ public class GameTest extends TestCase {
 
   public void testDetectsPromotionCorrectly() throws Exception {
     String[] initStrings =
-                   {"r.bqkbnr",
-                    "pPppppp.",
+                   {"rPbqkbnr",
+                    "p.ppppp.",
                     ".......p",
                     "........",
                     "...n....",
@@ -167,7 +167,7 @@ public class GameTest extends TestCase {
                     "RNBQKBNR"};
     Game testGame = new Game(initStrings);
 
-    assertEquals(ReturnValue.PROMOTION, testGame.makeMove("b7", "b8"));
+    assertTrue(testGame.promotionAvailable());
   }
 
   public void testTestForCheckmateIsCorrectAndDoesUndoWhenPersonIsInCheckmate() throws Exception {
@@ -201,7 +201,7 @@ public class GameTest extends TestCase {
                     "RNBQK..R"};
     Game testGame = new Game(initStrings);
 
-    assertTrue(testGame.makeMove("e1", "h1") != ReturnValue.FAIL);
+    assertTrue(testGame.makeMove("e1", "h1"));
     assertEquals("RNBQ.RK.", testGame.getBoardAsString()[7]);
   }
 
@@ -217,7 +217,7 @@ public class GameTest extends TestCase {
                     "R...KBNR"};
     Game testGame = new Game(initStrings);
 
-    assertTrue(testGame.makeMove("e1", "a1") != ReturnValue.FAIL);
+    assertTrue(testGame.makeMove("e1", "a1"));
     assertEquals("..KR.BNR", testGame.getBoardAsString()[7]);
   }
 
@@ -235,7 +235,7 @@ public class GameTest extends TestCase {
 
     String[] currentBoard = testGame.getBoardAsString();
     testGame.makeMove("e1", "h1");
-    assertEquals(ReturnValue.FAIL, testGame.makeMove("e1", "h1"));
+    assertFalse(testGame.makeMove("e1", "h1"));
     for (int row = 0; row < Game.ROWS; row++) {
       assertEquals(initStrings[row], currentBoard[row]);
     }
@@ -255,7 +255,7 @@ public class GameTest extends TestCase {
 
     String[] currentBoard = testGame.getBoardAsString();
     testGame.makeMove("e1", "h1");
-    assertEquals(ReturnValue.FAIL, testGame.makeMove("e1", "h1"));
+    assertFalse(testGame.makeMove("e1", "h1"));
     for (int row = 0; row < Game.ROWS; row++) {
       assertEquals(initStrings[row], currentBoard[row]);
     }
@@ -273,7 +273,7 @@ public class GameTest extends TestCase {
                     "RNBQKBNR"};
     Game testGame = new Game(initStrings);
 
-    assertFalse(testGame.detectPromotion().equals(new Position(-1,-1)));
+    assertFalse(testGame.findPromotion().equals(new Position(-1,-1)));
     assertTrue(testGame.doPromotion('Q'));
   }
 
@@ -289,7 +289,7 @@ public class GameTest extends TestCase {
                     "RNBQKBNR"};
     Game testGame = new Game(initStrings);
 
-    assertFalse(testGame.detectPromotion().equals(new Position(-1,-1)));
+    assertFalse(testGame.findPromotion().equals(new Position(-1,-1)));
     assertFalse(testGame.doPromotion('K'));
   }
 
@@ -305,7 +305,7 @@ public class GameTest extends TestCase {
                     "RNBQKBNR"};
     Game testGame = new Game(initStrings);
 
-    assertTrue(testGame.detectPromotion().equals(new Position(-1,-1)));
+    assertTrue(testGame.findPromotion().equals(new Position(-1,-1)));
   }
 
   public void testPassantSuccess() throws Exception {
@@ -344,6 +344,6 @@ public class GameTest extends TestCase {
     testGame.makeMove("a7", "a5");
 
     assertFalse(testGame.isValidPassant(5, 6, 6, 7));
-    assertFalse(testGame.makeMove(5, 6, 6, 7) != ReturnValue.FAIL);
+    assertFalse(testGame.makeMove(5, 6, 6, 7));
   }
 }

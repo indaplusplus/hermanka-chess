@@ -43,6 +43,9 @@ public class App {
   }
 
   private static void getPromotion() {
+    if (!currentGame.promotionAvailable()) {
+      return;
+    }
     printBoard();
     System.out.println("");
     System.out.println("Promotion available");
@@ -70,12 +73,7 @@ public class App {
       System.out.flush();
       String from = in.next();
       String to = in.next();
-      ReturnValue ret = currentGame.makeMove(from, to);
-      if (ret == ReturnValue.SUCCESS) {
-        break;
-      }
-      if (ret == ReturnValue.PROMOTION) {
-        getPromotion();
+      if (currentGame.makeMove(from, to)) {
         break;
       }
       System.out.println("Invalid move");
@@ -111,6 +109,7 @@ public class App {
       System.out.println("");
       testIfInCheck();
       getAndMakeMove();
+      getPromotion();
     }
     endGame();
   }
