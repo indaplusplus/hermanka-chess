@@ -361,6 +361,9 @@ public class Game {
 
   boolean isValidCastling(int kingRow, int kingCol, int rookRow, int rookCol) {
     //how would a castling work if the pieces are not on the same row?
+    if (!isCastlingConditons(kingRow, kingCol, rookRow, rookCol)) {
+      return false;
+    }
     if (kingRow != rookRow) {
       return false;
     }
