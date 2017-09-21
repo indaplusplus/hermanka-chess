@@ -216,7 +216,7 @@ public class Gui extends Application {
   }
 
   private void markSelected(int row, int col) {
-    if ((row + col) % 2 == 0) {//White
+    if ((row + col) % 2 == 0) { //White
       Image backgroundImage = new Image(getClass().getClassLoader().getResourceAsStream("white-selected.png"));
 
       Background background = new Background(new BackgroundImage(backgroundImage,
@@ -240,7 +240,7 @@ public class Gui extends Application {
   }
 
   private void markReachable(int row, int col) {
-    if ((row + col) % 2 == 0) {//White
+    if ((row + col) % 2 == 0) { //White
       Image backgroundImage = new Image(getClass().getClassLoader().getResourceAsStream("white-reachable.png"));
 
       Background background = new Background(new BackgroundImage(backgroundImage,
@@ -371,10 +371,10 @@ public class Gui extends Application {
       }
     });
 
-    grid.add(knightPromote, GAME_COLS-4, GAME_ROWS, 1, 2);
-    grid.add(rookPromote, GAME_COLS-3, GAME_ROWS, 1, 2);
-    grid.add(bishopPromote, GAME_COLS-2, GAME_ROWS, 1, 2);
-    grid.add(queenPromote, GAME_COLS-1, GAME_ROWS, 1, 2);
+    grid.add(knightPromote, GAME_COLS - 4, GAME_ROWS, 1, 2);
+    grid.add(rookPromote, GAME_COLS - 3, GAME_ROWS, 1, 2);
+    grid.add(bishopPromote, GAME_COLS - 2, GAME_ROWS, 1, 2);
+    grid.add(queenPromote, GAME_COLS - 1, GAME_ROWS, 1, 2);
   }
 
   private void createSquares() {
