@@ -3,7 +3,9 @@ package com.pluss.chessgui;
 import com.pluss.chess.Color;
 import com.pluss.chess.Game;
 import com.pluss.chess.PieceType;
+import com.pluss.chess.Position;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -83,6 +85,12 @@ public class Gui extends Application {
     return new StringBuilder().append((char)(col + (int)'a')).append(8 - row).toString();
   }
 
+  private Position stringToPos(String pos) {
+    int col = (int)pos.charAt(0) - (int)'a';
+    int row = GAME_ROWS - Character.getNumericValue(pos.charAt(1));
+    return new Position(row, col);
+  }
+
   private void updateCurrentPlayer() {
     if (currentGame.getCurrentPlayer() == WHITE) {
       currentPlayer.setText("Whites' Turn");
@@ -92,12 +100,29 @@ public class Gui extends Application {
   }
 
   private void updateBoardGraphics() {
+    Image imageWhite = new Image(getClass().getClassLoader().getResourceAsStream("white-empty.png"));
+    Image imageBlack = new Image(getClass().getClassLoader().getResourceAsStream("black-empty.png"));
+
+    Background backgroundWhite = new Background(new BackgroundImage(imageWhite,
+            BackgroundRepeat.REPEAT,
+            BackgroundRepeat.REPEAT,
+            BackgroundPosition.DEFAULT,
+            BackgroundSize.DEFAULT));
+
+    Background backgroundBlack = new Background(new BackgroundImage(imageBlack,
+            BackgroundRepeat.REPEAT,
+            BackgroundRepeat.REPEAT,
+            BackgroundPosition.DEFAULT,
+            BackgroundSize.DEFAULT));
+
     for (int row = 0; row < GAME_ROWS; ++row) {
       for (int col = 0; col < GAME_COLS; ++col) {
         StringBuilder tempStringBuilder = new StringBuilder();
         String pos = posToString(row, col);
         tempStringBuilder.append(pieceToCharacter.get(currentGame.getPieceColor(pos)).get(currentGame.getPieceType(pos)));
         buttons[row][col].setText(tempStringBuilder.toString());
+
+        buttons[row][col].setBackground((row + col) % 2 == 0 ? backgroundWhite : backgroundBlack);
       }
     }
   }
@@ -190,6 +215,63 @@ public class Gui extends Application {
     deactivatePromotion();
   }
 
+  private void markSelected(int row, int col) {
+    if ((row + col) % 2 == 0) {//White
+      Image backgroundImage = new Image(getClass().getClassLoader().getResourceAsStream("white-selected.png"));
+
+      Background background = new Background(new BackgroundImage(backgroundImage,
+              BackgroundRepeat.REPEAT,
+              BackgroundRepeat.REPEAT,
+              BackgroundPosition.DEFAULT,
+              BackgroundSize.DEFAULT));
+
+      buttons[row][col].setBackground(background);
+    } else {
+      Image backgroundImage = new Image(getClass().getClassLoader().getResourceAsStream("black-selected.png"));
+
+      Background background = new Background(new BackgroundImage(backgroundImage,
+              BackgroundRepeat.REPEAT,
+              BackgroundRepeat.REPEAT,
+              BackgroundPosition.DEFAULT,
+              BackgroundSize.DEFAULT));
+
+      buttons[row][col].setBackground(background);
+    }
+  }
+
+  private void markReachable(int row, int col) {
+    if ((row + col) % 2 == 0) {//White
+      Image backgroundImage = new Image(getClass().getClassLoader().getResourceAsStream("white-reachable.png"));
+
+      Background background = new Background(new BackgroundImage(backgroundImage,
+              BackgroundRepeat.REPEAT,
+              BackgroundRepeat.REPEAT,
+              BackgroundPosition.DEFAULT,
+              BackgroundSize.DEFAULT));
+
+      buttons[row][col].setBackground(background);
+    } else {
+      Image backgroundImage = new Image(getClass().getClassLoader().getResourceAsStream("black-reachable.png"));
+
+      Background background = new Background(new BackgroundImage(backgroundImage,
+              BackgroundRepeat.REPEAT,
+              BackgroundRepeat.REPEAT,
+              BackgroundPosition.DEFAULT,
+              BackgroundSize.DEFAULT));
+
+      buttons[row][col].setBackground(background);
+    }
+  }
+
+  private void markSquares(int row, int col) {
+    ArrayList<String> moves = currentGame.getAllAvailableMovesFromSquare(posToString(row, col));
+    markSelected(row, col);
+    for (String pos : moves) {
+      Position tmpPos = stringToPos(pos);
+      markReachable(tmpPos.row, tmpPos.col);
+    }
+  }
+
   private void doActionOnSquare(int row, int col) {
     System.err.print(posToString(row, col) + " ");
 
@@ -202,6 +284,7 @@ public class Gui extends Application {
     if (selectedRow == -1 && selectedCol == -1) {
       selectedRow = row;
       selectedCol = col;
+      markSquares(row, col);
       message.setText(posToString(row, col) + " selected");
     } else {
       String fromPos = posToString(selectedRow, selectedCol);
@@ -209,9 +292,10 @@ public class Gui extends Application {
       if (!currentGame.makeMove(fromPos, toPos)) {
         message.setText("Invalid move");
       } else {
-        updateBoardGraphics();
         message.setText("");
       }
+      updateBoardGraphics();
+      updateCurrentPlayer();
       selectedRow = -1;
       selectedCol = -1;
     }
@@ -221,7 +305,6 @@ public class Gui extends Application {
       return;
     }
 
-    updateCurrentPlayer();
   }
 
   private void addPromotionSquares() {
@@ -348,7 +431,7 @@ public class Gui extends Application {
     createSquares();
     addPromotionSquares();
 
-    grid.add(currentPlayer, 0, GAME_ROWS + 0 , GAME_COLS, 1);
+    grid.add(currentPlayer, 0, GAME_ROWS, GAME_COLS, 1);
     grid.add(message, 0, GAME_ROWS + 1, GAME_COLS, 1);
     currentPlayer.setFont(new Font(FONT_SIZE));
     message.setFont(new Font(FONT_SIZE));
