@@ -2,7 +2,7 @@ package com.pluss.chess;
 
 import java.util.ArrayList;
 
-public class Board {
+class Board {
 
   static final int ROWS = 8;
   static final int COLUMNS = 8;

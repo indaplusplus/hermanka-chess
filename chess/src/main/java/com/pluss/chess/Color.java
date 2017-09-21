@@ -1,5 +1,5 @@
 package com.pluss.chess;
 
-enum Color {
+public enum Color {
   WHITE, BLACK, NONE
 }

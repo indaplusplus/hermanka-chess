@@ -545,6 +545,14 @@ public class Game {
     return !findPromotion().equals(new Position(-1,-1));
   }
 
+  public boolean whiteHasPromotion() {
+    return findPromotion().row == 0;
+  }
+
+  public boolean blackHasPromotion() {
+    return findPromotion().row == ROWS-1;
+  }
+
   public String[] getBoardAsString() {
     String[] printableBoard = new String[ROWS];
 
@@ -556,6 +564,28 @@ public class Game {
     }
 
     return printableBoard;
+  }
+
+  private PieceType getPieceType(Position pos) {
+    if (pos.row < 0 || ROWS <= pos.row || pos.col < 0 || COLUMNS <= pos.col) {
+      return PieceType.NONE;
+    }
+    return board.getType(pos.row, pos.col);
+  }
+
+  public PieceType getPieceType(String pos) {
+    return getPieceType(convertSquareNotationToCoordinates(pos));
+  }
+
+  private Color getPieceColor(Position pos) {
+    if (pos.row < 0 || ROWS <= pos.row || pos.col < 0 || COLUMNS <= pos.col) {
+      return Color.NONE;
+    }
+    return board.getColor(pos.row, pos.col);
+  }
+
+  public Color getPieceColor(String pos) {
+    return getPieceColor(convertSquareNotationToCoordinates(pos));
   }
 
   /*
@@ -594,7 +624,7 @@ public class Game {
       if (board.getType(ROWS - 1, col) == PieceType.PAWN) {
         //check lower row for pawns
         if (promotePos.col == -1) {
-          promotePos = new Position(ROWS - 1,col);
+          promotePos = new Position(ROWS - 1, col);
         } else {
           throw new Error();
         }

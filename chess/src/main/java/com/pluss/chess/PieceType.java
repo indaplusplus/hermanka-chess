@@ -1,5 +1,5 @@
 package com.pluss.chess;
 
-enum PieceType {
+public enum PieceType {
   NONE, KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN
 }
