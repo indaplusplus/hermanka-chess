@@ -158,6 +158,8 @@ public class Game {
     //history.add(toPush);
     if (isValidPassant(fromRow, fromCol, toRow, toCol)) {
       doPassant(fromRow, fromCol, toRow, toCol);
+    } else if (isValidCastling(fromRow, fromCol, toRow, toCol)) {
+      doCastling(fromRow, fromCol, toRow, toCol);
     } else {
       doMove(fromRow, fromCol, toRow, toCol);
     }
@@ -339,7 +341,7 @@ public class Game {
 
     //special case if it's an castling
     if (isCastlingConditons(fromRow, fromCol, toRow, toCol)) {
-      return tryCastling(fromRow, fromCol, toRow, toCol);
+      return isValidCastling(fromRow, fromCol, toRow, toCol);
     }
 
     if (!isValidMoveWithoutRecursion(fromRow, fromCol, toRow, toCol)) {
@@ -357,7 +359,7 @@ public class Game {
     return true;
   }
 
-  boolean tryCastling(int kingRow, int kingCol, int rookRow, int rookCol) {
+  boolean isValidCastling(int kingRow, int kingCol, int rookRow, int rookCol) {
     //how would a castling work if the pieces are not on the same row?
     if (kingRow != rookRow) {
       return false;
@@ -371,11 +373,13 @@ public class Game {
       kingCol = rookCol;
       rookCol = tmp;
     }
+
     //none of the pieces can have moved for an Castling to take place
     if (board.getHasMoved(kingRow, kingCol) || board.getHasMoved(rookRow,rookCol)) {
       return false;
     }
-    //there can be mo pieces between them
+
+    //there can be no pieces between them
     if (!checkForInBetweenPieces(kingRow, kingCol, rookRow, rookCol)) {
       return false;
     }
@@ -386,21 +390,52 @@ public class Game {
     }
     int deltaCol = (kingCol < rookCol ? 1 : -1);
     int currentCol = kingCol;
-    doMove(kingRow, currentCol, kingRow, currentCol + deltaCol);
+
+    makeBackup();
     currentCol += deltaCol;
+    doMove(kingRow, currentCol, kingRow, currentCol);
 
     if (isInCheck(currentPlayer)) {
-      doMove(kingRow, currentCol, kingRow, kingCol);
+      undoMove();
       return false;
     }
-    doMove(kingRow, currentCol, kingRow, currentCol + deltaCol);
+    undoMove();
     currentCol += deltaCol;
+    doMove(kingRow, currentCol, kingRow, currentCol);
     if (isInCheck(currentPlayer)) {
-      doMove(kingRow, currentCol, kingRow, kingCol);
+      undoMove();
       return false;
     }
-    doMove(rookRow, rookCol, rookRow, currentCol - deltaCol);
+    undoMove();
     return true;
+  }
+
+  boolean doCastling(int kingRow, int kingCol, int rookRow, int rookCol) {
+    //how would a castling work if the pieces are not on the same row?
+    if (kingRow != rookRow) {
+      return false;
+    }
+    //if pieces are swapped, swap pieces
+    if (board.getType(kingRow, kingCol) == PieceType.ROOK) {
+      int tmp = kingRow;
+      kingRow = rookRow;
+      rookRow = tmp;
+      tmp = kingCol;
+      kingCol = rookCol;
+      rookCol = tmp;
+    }
+
+    if (!isValidCastling(kingRow, kingCol, rookRow, rookCol)) {
+      return false;
+    }
+
+    int deltaCol = (kingCol < rookCol ? 1 : -1);
+    int currentCol = kingCol;
+
+    doMove(kingRow, currentCol, kingRow, currentCol + 2*deltaCol);
+    doMove(rookRow, rookCol, rookRow, currentCol + deltaCol);
+    return true;
+
   }
 
   /*

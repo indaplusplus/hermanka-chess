@@ -205,6 +205,23 @@ public class GameTest extends TestCase {
     assertEquals("RNBQ.RK.", testGame.getBoardAsString()[7]);
   }
 
+  public void testCastlingRight2() throws Exception {
+    String[] initStrings =
+                   {"rnbqkbnr",
+                    "pppppppp",
+                    "........",
+                    "........",
+                    "........",
+                    "........",
+                    "PPPPPPPP",
+                    "RNBQK..R"};
+    Game testGame = new Game(initStrings);
+
+    assertTrue(testGame.isValidCastling(7, 4, 7, 7));
+    assertTrue(testGame.isValidCastling(7, 4, 7, 7));
+  }
+
+
   public void testCastlingLeft() throws Exception {
     String[] initStrings =
                    {"rnbqkbnr",

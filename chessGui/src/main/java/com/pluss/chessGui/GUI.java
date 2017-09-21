@@ -286,6 +286,7 @@ public class Gui extends Application {
       selectedCol = col;
       markSquares(row, col);
       message.setText(posToString(row, col) + " selected");
+      return;
     } else {
       String fromPos = posToString(selectedRow, selectedCol);
       String toPos = posToString(row, col);
@@ -295,16 +296,15 @@ public class Gui extends Application {
         message.setText("");
       }
       updateBoardGraphics();
-      updateCurrentPlayer();
       selectedRow = -1;
       selectedCol = -1;
     }
 
     if (currentGame.promotionAvailable()) {
       activatePromotionMode();
-      return;
     }
 
+    updateCurrentPlayer();
   }
 
   private void addPromotionSquares() {
