@@ -2,7 +2,7 @@ package com.pluss.chess;
 
 import java.util.ArrayList;
 
-class Board {
+public class Board {
 
   static final int ROWS = 8;
   static final int COLUMNS = 8;
@@ -35,15 +35,15 @@ class Board {
     pieces[fromRow][fromCol] = new Piece();
   }
 
-  PieceType getType(int row, int col) {
+  public PieceType getType(int row, int col) {
     return pieces[row][col].getType();
   }
 
-  Color getColor(int row, int col) {
+  public Color getColor(int row, int col) {
     return pieces[row][col].getColor();
   }
 
-  boolean getHasMoved(int row, int col) {
+  public boolean getHasMoved(int row, int col) {
     return pieces[row][col].getHasMoved();
   }
 
