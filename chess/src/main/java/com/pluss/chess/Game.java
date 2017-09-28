@@ -1,5 +1,8 @@
 package com.pluss.chess;
 
+import com.pluss.chess.Helper.BoardHandler;
+import com.pluss.chess.Helper.Castling;
+
 import java.util.ArrayList;
 
 public class Game {
@@ -360,31 +363,12 @@ public class Game {
   }
 
   boolean isValidCastling(int kingRow, int kingCol, int rookRow, int rookCol) {
-    //how would a castling work if the pieces are not on the same row?
-    if (!isCastlingConditons(kingRow, kingCol, rookRow, rookCol)) {
-      return false;
-    }
-    if (kingRow != rookRow) {
-      return false;
-    }
-    //if pieces are swapped, swap pieces
-    if (board.getType(kingRow, kingCol) == PieceType.ROOK) {
-      int tmp = kingRow;
-      kingRow = rookRow;
-      rookRow = tmp;
-      tmp = kingCol;
-      kingCol = rookCol;
-      rookCol = tmp;
-    }
+    boolean potentialInvalidation = Castling.foundInvalidCastling(
+        currentPlayer, board, kingRow, kingCol, rookRow, rookCol
+    );
 
-    //none of the pieces can have moved for an Castling to take place
-    if (board.getHasMoved(kingRow, kingCol) || board.getHasMoved(rookRow,rookCol)) {
-      return false;
-    }
-
-    //there can be no pieces between them
-    if (!checkForInBetweenPieces(kingRow, kingCol, rookRow, rookCol)) {
-      return false;
+    if (potentialInvalidation) {
+      return !potentialInvalidation;
     }
 
     //checks if the king is in check in any of the places he moves through
@@ -418,15 +402,7 @@ public class Game {
     if (kingRow != rookRow) {
       return false;
     }
-    //if pieces are swapped, swap pieces
-    if (board.getType(kingRow, kingCol) == PieceType.ROOK) {
-      int tmp = kingRow;
-      kingRow = rookRow;
-      rookRow = tmp;
-      tmp = kingCol;
-      kingCol = rookCol;
-      rookCol = tmp;
-    }
+    Castling.castlingSwaps(board, kingRow, kingCol, rookRow, rookCol);
 
     if (!isValidCastling(kingRow, kingCol, rookRow, rookCol)) {
       return false;
@@ -438,7 +414,6 @@ public class Game {
     doMove(kingRow, currentCol, kingRow, currentCol + 2*deltaCol);
     doMove(rookRow, rookCol, rookRow, currentCol + deltaCol);
     return true;
-
   }
 
   /*
@@ -450,41 +425,12 @@ public class Game {
     //check does not include starting and ending squares and assumes that the lines angle
     //is an multiple of 45 deg
     //returns false if there are pieces in between
-    int deltaRow = 0;
-    if (fromRow != toRow) {
-      deltaRow = fromRow < toRow ? 1 : -1;
-    }
-    int deltaCol = 0;
-    if (fromCol != toCol) {
-      deltaCol = fromCol < toCol ? 1 : -1;
-    }
-
-    int currentRow = fromRow + deltaRow;
-    int currentCol = fromCol + deltaCol;
-    while (currentRow != toRow || currentCol != toCol) {
-      if (board.getType(currentRow, currentCol) != PieceType.NONE) {
-        return false;
-      }
-      currentRow += deltaRow;
-      currentCol += deltaCol;
-    }
-
-    return true;
+    return BoardHandler.checkForInBetweenPieces(board, fromRow, fromCol, toRow, toCol);
   }
 
   boolean isCastlingConditons(int fromRow, int fromCol, int toRow, int toCol) {
-
-    // the pieces has to be a King and a Rook
-    if (!(board.getType(fromRow, fromCol) == PieceType.KING
-            && board.getType(toRow, toCol) == PieceType.ROOK)
-            || (board.getType(fromRow, fromCol) == PieceType.ROOK
-            && board.getType(toRow, toCol) == PieceType.KING)) {
-      return false;
-    }
-
-    //the pieces have to be the right color
-    return board.getColor(fromRow, fromCol) == currentPlayer
-            && board.getColor(toRow, toCol) == currentPlayer;
+    return Castling.isCastlingConditons(currentPlayer,board,
+            fromRow,fromCol,toRow,toCol);
   }
 
   private boolean coordinatesAreValid(int fromRow, int fromCol, int toRow, int toCol) {
@@ -587,9 +533,7 @@ public class Game {
     return findPromotion().row == 0;
   }
 
-  public boolean blackHasPromotion() {
-    return findPromotion().row == ROWS-1;
-  }
+  public boolean blackHasPromotion() { return findPromotion().row == ROWS-1; }
 
   public String[] getBoardAsString() {
     String[] printableBoard = new String[ROWS];
