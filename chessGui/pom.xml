@@ -3,19 +3,18 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.pluss.chessGui</groupId>
   <artifactId>chessGui</artifactId>
-  <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <version>1.0</version>
   <name>chessGui</name>
   <url>http://maven.apache.org</url>
-  <parent>
-    <groupId>com.pluss.chessAll</groupId>
-    <artifactId>chessAll</artifactId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
   <properties>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
   </properties>
+
+  <modules>
+    <module>../chess</module>
+  </modules>
 
   <build>
     <plugins>

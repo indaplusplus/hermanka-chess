@@ -422,7 +422,7 @@ public class Gui extends Application {
   public void start(Stage primaryStage) {
     addAllPieceCharacters();
 
-    primaryStage.setTitle("Chess");
+    primaryStage.setTitle("Chess  l");
 
     grid = new GridPane();
     grid.setAlignment(Pos.CENTER);
