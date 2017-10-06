@@ -5,6 +5,7 @@ import com.pluss.chess.Game;
 import com.pluss.chess.PieceType;
 import com.pluss.chess.Position;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -20,47 +21,52 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import jdk.nashorn.internal.runtime.ECMAException;
 
 import static com.pluss.chess.PieceType.*;
 import static com.pluss.chess.Color.*;
 
 public class Gui extends Application {
 
-  private static final int SCENE_HEIGHT = 840;
-  private static final int SCENE_WIDTH = 800;
-  private static final int GAME_ROWS = 8;
-  private static final int GAME_COLS = 8;
-  private static final int SQUARE_SIZE = 90;
-  private static final int PIECE_SIZE = 30;
-  private static final int FONT_SIZE = 20;
+  static final int SCENE_HEIGHT = 840;
+  static final int SCENE_WIDTH = 800;
+  static final int GAME_ROWS = 8;
+  static final int GAME_COLS = 8;
+  static final int SQUARE_SIZE = 90;
+  static final int PIECE_SIZE = 30;
+  static final int FONT_SIZE = 20;
 
-  private static final Game currentGame = new Game();
+  static final Game currentGame = new Game();
 
-  private Map<Color, Map<PieceType, Character>> pieceToCharacter = new TreeMap<>();
-  private Button[][] buttons;
-  private Scene gameScene;
-  private GridPane grid;
-  private Text currentPlayer = new Text();
-  private Text message = new Text();
+  Map<Color, Map<PieceType, Character>> pieceToCharacter = new TreeMap<>();
+  Button[][] buttons;
+  Scene gameScene;
+  GridPane grid;
+  Text currentPlayer = new Text();
+  Text message = new Text();
 
-  private Button knightPromote;
-  private Button rookPromote;
-  private Button queenPromote;
-  private Button bishopPromote;
+  Button knightPromote;
+  Button rookPromote;
+  Button queenPromote;
+  Button bishopPromote;
 
-  private int lambdaRow;
-  private int lambdaCol;
+  int lambdaRow;
+  int lambdaCol;
 
-  private int selectedRow = -1;
-  private int selectedCol = -1;
+  int selectedRow = -1;
+  int selectedCol = -1;
 
-  private boolean promotionRequired = false;
+  boolean promotionRequired = false;
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
+     if (args.length > 0) {
+      GuiNetwork realThing = new GuiNetwork(args);
+      return;
+    }
     launch(args);
   }
 
-  private void addAllPieceCharacters() {
+   void addAllPieceCharacters() {
     pieceToCharacter.put(WHITE, new TreeMap<PieceType, Character>());
     pieceToCharacter.get(WHITE).put(KING, '\u2654');
     pieceToCharacter.get(WHITE).put(QUEEN, '\u2655');
@@ -81,17 +87,17 @@ public class Gui extends Application {
     pieceToCharacter.get(Color.NONE).put(PieceType.NONE, ' ');
   }
 
-  private String posToString(int row, int col) {
+   String posToString(int row, int col) {
     return new StringBuilder().append((char)(col + (int)'a')).append(8 - row).toString();
   }
 
-  private Position stringToPos(String pos) {
+   Position stringToPos(String pos) {
     int col = (int)pos.charAt(0) - (int)'a';
     int row = GAME_ROWS - Character.getNumericValue(pos.charAt(1));
     return new Position(row, col);
   }
 
-  private void updateCurrentPlayer() {
+   void updateCurrentPlayer() {
     if (currentGame.getCurrentPlayer() == WHITE) {
       currentPlayer.setText("Whites' Turn");
     } else {
@@ -99,7 +105,7 @@ public class Gui extends Application {
     }
   }
 
-  private void updateBoardGraphics() {
+  void updateBoardGraphics() {
     Image imageWhite = new Image(getClass().getClassLoader().getResourceAsStream("white-empty.png"));
     Image imageBlack = new Image(getClass().getClassLoader().getResourceAsStream("black-empty.png"));
 
@@ -127,7 +133,7 @@ public class Gui extends Application {
     }
   }
 
-  private boolean hasGameEnded() {
+  boolean hasGameEnded() {
     if (currentGame.hasWhiteWon()) {
       currentPlayer.setText("White has won");
     } else if (currentGame.hasBlackWon()) {
@@ -139,7 +145,7 @@ public class Gui extends Application {
     return true;
   }
 
-  private void activatePromotionMode() {
+  void activatePromotionMode() {
     promotionRequired = true;
     message.setText("Select what to promote to");
 
@@ -179,7 +185,7 @@ public class Gui extends Application {
     updateBoardGraphics();
   }
 
-  private void deactivatePromotion() {
+  void deactivatePromotion() {
     message.setText("");
 
     Image backgroundImage = new Image(getClass().getClassLoader().getResourceAsStream("blank.png"));
@@ -206,7 +212,7 @@ public class Gui extends Application {
     promotionRequired = false;
   }
 
-  private void doPromotion(Character piece) {
+  void doPromotion(Character piece) {
     System.err.print(piece + " ");
     if (!promotionRequired) {
       return;
@@ -215,7 +221,7 @@ public class Gui extends Application {
     deactivatePromotion();
   }
 
-  private void markSelected(int row, int col) {
+  void markSelected(int row, int col) {
     if ((row + col) % 2 == 0) { //White
       Image backgroundImage = new Image(getClass().getClassLoader().getResourceAsStream("white-selected.png"));
 
@@ -239,7 +245,7 @@ public class Gui extends Application {
     }
   }
 
-  private void markReachable(int row, int col) {
+  void markReachable(int row, int col) {
     if ((row + col) % 2 == 0) { //White
       Image backgroundImage = new Image(getClass().getClassLoader().getResourceAsStream("white-reachable.png"));
 
@@ -263,7 +269,7 @@ public class Gui extends Application {
     }
   }
 
-  private void markSquares(int row, int col) {
+  void markSquares(int row, int col) {
     ArrayList<String> moves = currentGame.getAllAvailableMovesFromSquare(posToString(row, col));
     markSelected(row, col);
     for (String pos : moves) {
@@ -272,8 +278,8 @@ public class Gui extends Application {
     }
   }
 
-  private void doActionOnSquare(int row, int col) {
-    System.err.print(posToString(row, col) + " ");
+  void doActionOnSquare(int row, int col) {
+    //System.err.print(posToString(row, col) + " ");
 
     if (hasGameEnded()) {
       return;
@@ -307,7 +313,7 @@ public class Gui extends Application {
     updateCurrentPlayer();
   }
 
-  private void addPromotionSquares() {
+  void addPromotionSquares() {
     Image backgroundImage = new Image(getClass().getClassLoader().getResourceAsStream("blank.png"));
 
     Background background = new Background(new BackgroundImage(backgroundImage,
@@ -377,7 +383,7 @@ public class Gui extends Application {
     grid.add(queenPromote, GAME_COLS - 1, GAME_ROWS, 1, 2);
   }
 
-  private void createSquares() {
+  void createSquares() {
     buttons = new Button[GAME_ROWS][GAME_COLS];
 
     for (int row = 0; row < GAME_ROWS; ++row) {
@@ -420,6 +426,7 @@ public class Gui extends Application {
 
   @Override
   public void start(Stage primaryStage) {
+    System.err.println("lol");
     addAllPieceCharacters();
 
     primaryStage.setTitle("Chess  l");
