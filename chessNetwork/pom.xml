@@ -1,20 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.pluss.chessGui</groupId>
-  <artifactId>chessGui</artifactId>
-  <packaging>pom</packaging>
-  <version>1.0</version>
-  <name>chessGui</name>
+  <groupId>com.pluss.chessNetwork</groupId>
+  <artifactId>chessNetwork</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>chessNetwork</name>
   <url>http://maven.apache.org</url>
-  <properties>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
-  </properties>
-  <modules>
-    <module>../chess</module>
-    <module>../chessNetwork</module>
-  </modules>
 
   <build>
     <plugins>
@@ -31,7 +23,7 @@
               <archive>
                 <manifest>
                   <mainClass>
-                    com.pluss.chessgui.Gui
+                    com.pluss.chessNetwork.Main
                   </mainClass>
                 </manifest>
               </archive>
@@ -69,16 +61,17 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.pluss.chess</groupId>
-      <artifactId>chess</artifactId>
+      <groupId>se.kth.cnlib</groupId>
+      <artifactId>cnlib</artifactId>
       <version>1.0-SNAPSHOT</version>
-      <scope>compile</scope>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/src/main/resources/cnlib.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>com.pluss.chessNetwork</groupId>
-      <artifactId>chessNetwork</artifactId>
-      <version>1.0-SNAPSHOT</version>
-      <scope>compile</scope>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>3.4.0</version>
     </dependency>
   </dependencies>
+
 </project>
